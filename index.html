@@ -6,48 +6,44 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="display" content="standalone">
 <title>Escala Eliezer</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:#0f1117;color:#e8eaf0;font-family:Arial,sans-serif;padding-bottom:100px;}
-  header{background:#1a1d27;padding:14px 20px;display:flex;justify-content:space-between;position:sticky;top:0;z-index:90;}
+  header{background:#1a1d27;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:90;}
   main{padding:18px 16px;max-width:480px;margin:0 auto;}
   .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;}
   .stat-card{background:#1a1d27;border-radius:12px;padding:12px;text-align:center;}
   .stat-card .val{font-size:22px;font-weight:900;}
   .stat-card .lbl{font-size:11px;color:#7b82a0;margin-top:4px;}
+  .blue{color:#e85555;} .green{color:#38d9a9;}
   .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:20px;}
   .day-cell{background:#1a1d27;border:1px solid #2e3350;border-radius:10px;padding:7px;text-align:center;cursor:pointer;}
   .day-cell.work-day{border-color:#e85555;}
   .day-cell.off-day{border-color:#38d9a9;}
+  .day-cell.today-cell{background:#22263a;border-width:2px;}
   .ponto-card{background:#1a1d27;border-radius:16px;padding:18px;margin-bottom:20px;}
   .ponto-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #2e3350;}
-  .btn-reg{background:#e85555;color:#fff;border:none;padding:7px 15px;border-radius:8px;cursor:pointer;font-size:20px;display:inline-flex;align-items:center;justify-content:center;transition:background 0.1s;}
-  .btn-reg:active{background:#ff6b6b;}
+  .btn-reg{background:#e85555;color:#fff;border:none;padding:7px 15px;border-radius:8px;cursor:pointer;font-size:20px;display:inline-flex;align-items:center;justify-content:center;}
   .btn-reg:disabled{background:#22263a;color:#555;cursor:not-allowed;}
-  .btn-edit{background:transparent;border:1px solid #2e3350;color:#7b82a0;padding:5px 8px;border-radius:77px;cursor:pointer;margin-right:5px;}
+  .btn-edit{background:transparent;border:1px solid #2e3350;color:#7b82a0;padding:5px 8px;border-radius:7px;cursor:pointer;margin-right:5px;}
   .btn-sm{background:#22263a;border:1px solid #2e3350;color:#7b82a0;padding:5px 11px;border-radius:8px;cursor:pointer;}
-  .grafico-card{background:#1a1d27;border-radius:16px;padding:18px;margin-bottom:20px;}
-  .grafico-card h2{font-size:13px;margin-bottom:14px;color:#7b82a0;}
+  .card-padrao{background:#1a1d27;border-radius:16px;padding:18px;margin-bottom:20px;}
+  .config-section{margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid #2e3350;}
+  .config-section h3{font-size:14px;margin-bottom:10px;color:#7b82a0;}
+  .btn-block{width:100%;display:block;padding:12px;background:#22263a;border:1px solid #2e3350;color:#fff;border-radius:10px;cursor:pointer;margin-bottom:8px;font-weight:bold;text-align:center;text-decoration:none;font-size:14px;}
+  .danger-zone{border:1px solid #e85555;padding:15px;border-radius:12px;margin-top:15px;}
+  .btn-danger{background:#e85555;color:#fff;border:none;padding:12px;border-radius:10px;cursor:pointer;width:100%;font-weight:bold;}
   .bars-container{display:flex;align-items:flex-end;gap:6px;height:140px;}
   .bar-wrapper{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;}
   .bar{width:100%;background:#e85555;border-radius:6px;transition:height 0.3s;}
   .bar-value{font-size:9px;font-weight:700;}
   .bar-label{font-size:8px;color:#7b82a0;}
-  .notif-card{background:#1a1d27;border-radius:16px;padding:18px;margin-bottom:20px;}
-  .notif-header{display:flex;justify-content:space-between;margin-bottom:14px;}
-  .notif-badge{background:#38d9a9;color:#000;font-size:10px;padding:4px 10px;border-radius:20px;}
-  .notif-horario-row{display:flex;justify-content:space-between;margin:10px 0;align-items:center;}
-  .notif-horario-row input{background:#22263a;border:1px solid #2e3350;color:#fff;padding:8px;border-radius:8px;}
-  .btn-notif{background:#22263a;border:1px solid #2e3350;color:#fff;padding:8px 16px;border-radius:10px;cursor:pointer;}
-  .btn-notif.primary{background:#e85555;}
   .month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
   .mcell{background:#22263a;border:1px solid #2e3350;border-radius:8px;padding:8px;text-align:center;cursor:pointer;}
   .mcell.off{border-color:#38d9a9;background:rgba(56,217,169,0.1);}
   .mcell.off .mdd{color:#38d9a9;}
   .mcell.empty{visibility:hidden;}
-  .hist-card{background:#1a1d27;border-radius:16px;padding:18px;}
   .hist-item{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid #2e3350;cursor:pointer;}
   .badge{font-size:11px;padding:3px 9px;border-radius:6px;}
   .badge.trabalhou{background:rgba(232,85,85,0.15);color:#e85555;}
@@ -63,22 +59,14 @@
   .eday-info{flex:1;}
   .eday-status{font-size:13px;font-weight:700;}
   .eday-horas{font-size:13px;font-weight:700;color:#e85555;}
-  
-  /* Menu Inferior Estilizado */
   nav{position:fixed;bottom:0;left:0;right:0;background:#1a1d27;display:flex;padding:12px 0 calc(12px + env(safe-area-inset-bottom));border-top:1px solid #2e3350;z-index:99;}
   .nav-btn{flex:1;background:none;border:none;color:#7b82a0;font-size:11px;cursor:pointer;font-weight:bold;display:flex;flex-direction:column;align-items:center;gap:4px;}
   .nav-btn.active{color:#e85555;}
   .nav-icon{font-size:18px;}
-  
-  /* Config Card Extra Interno */
-  .danger-zone{border:1px solid #e85555;padding:15px;border-radius:12px;margin-top:20px;}
-  .btn-danger{background:#e85555;color:#white;border:none;padding:10px;border-radius:8px;cursor:pointer;width:100%;font-weight:bold;}
-
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s;}
   .modal-overlay.open{opacity:1;pointer-events:all;}
   .modal{background:#1a1d27;border-radius:20px 20px 0 0;padding:22px 20px 40px;width:100%;max-width:480px;transform:translateY(40px);transition:transform 0.25s;}
   .modal-overlay.open .modal{transform:translateY(0);}
-  .modal h3{font-size:16px;margin-bottom:5px;}
   .mrow{margin-bottom:14px;}
   .mrow label{display:block;font-size:12px;color:#7b82a0;margin-bottom:4px;}
   .mrow input{width:100%;background:#22263a;border:1px solid #2e3350;color:#fff;padding:12px;border-radius:10px;}
@@ -88,7 +76,18 @@
   .toast{position:fixed;bottom:95px;left:50%;transform:translateX(-50%);background:#22263a;padding:10px 20px;border-radius:10px;opacity:0;transition:0.25s;pointer-events:none;z-index:200;border:1px solid #2e3350;}
   .toast.show{opacity:1;}
   .view{display:none;}.view.active{display:block;}
+  .notif-header{display:flex;justify-content:space-between;margin-bottom:14px;}
+  .notif-badge{background:#38d9a9;color:#000;font-size:10px;padding:4px 10px;border-radius:20px;}
+  .notif-horario-row{display:flex;justify-content:space-between;margin:10px 0;align-items:center;}
+  .notif-horario-row input{background:#22263a;border:1px solid #2e3350;color:#fff;padding:8px;border-radius:8px;}
+  .btn-notif{background:#22263a;border:1px solid #2e3350;color:#fff;padding:8px 16px;border-radius:10px;cursor:pointer;}
+  .btn-notif.primary{background:#e85555;}
 </style>
+<script>
+  if (window.navigator.standalone === false) {
+    // Código para fixar problemas de redirecionamento em standalone se necessário
+  }
+</script>
 </head>
 <body>
 <header>
@@ -97,28 +96,61 @@
 </header>
 <main>
   <div class="view active" id="view-hoje">
-    <div class="stats"><div class="stat-card"><div class="val blue" id="stat-dias">0</div><div class="lbl">Dias trabalhados</div></div><div class="stat-card"><div class="val green" id="stat-folgas">0</div><div class="lbl">Folgas no mês</div></div><div class="stat-card"><div class="val white" id="stat-horas">0h</div><div class="lbl">Horas no mês</div></div></div>
+    <div class="stats">
+      <div class="stat-card"><div class="val blue" id="stat-dias">0</div><div class="lbl">Dias trabalhados</div></div>
+      <div class="stat-card"><div class="val green" id="stat-folgas">0</div><div class="lbl">Folgas no mês</div></div>
+      <div class="stat-card"><div class="val white" id="stat-horas">0h</div><div class="lbl">Horas no mês</div></div>
+    </div>
+    
+    <div class="card-padrao" id="banco-horas-card">
+      <h2 style="font-size:13px;color:#7b82a0;margin-bottom:8px;">📊 Banco de Horas Acumulado</h2>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span id="banco-horas-valor" style="font-size:24px;font-weight:900;color:#38d9a9;">0h 00m</span>
+        <button class="btn-sm" onclick="ajustarBancoHoras()">Ajustar saldo</button>
+      </div>
+    </div>
+
     <div class="week-grid" id="week-grid"></div>
     <div class="ponto-card"><div class="ponto-card-header" style="display:flex;justify-content:space-between;margin-bottom:14px"><h2>📋 Ponto — Hoje</h2><button class="btn-sm" onclick="abrirModalDia(todayKey)">✏️ Editar dia</button></div><div id="ponto-body"></div></div>
-    <div class="resumo-card" id="resumo-card" style="display:none;background:#1a1d27;border-radius:16px;padding:18px;margin-bottom:20px"><h2 style="font-size:13px;color:#7b82a0;margin-bottom:12px">Resumo do dia</h2><div class="horas-big" id="horas-big" style="font-size:38px;font-weight:900;color:#e85555">—</div><div id="res-ef" style="margin-top:10px"></div></div>
-    <div class="grafico-card"><h2>📊 Evolução Semanal</h2><div id="grafico-container"></div></div>
-    <div class="notif-card"><div class="notif-header"><h2>🔔 Lembretes</h2><span class="notif-badge" id="notif-status-badge">🔕</span></div><div id="notif-container"></div></div>
+    
+    <div class="card-padrao" id="resumo-card" style="display:none;">
+      <h2 style="font-size:13px;color:#7b82a0;margin-bottom:12px">Resumo do dia</h2>
+      <div class="horas-big" id="horas-big" style="font-size:38px;font-weight:900;color:#e85555">—</div>
+      <div id="res-ef" style="margin-top:10px; font-size:14px;"></div>
+    </div>
+    
+    <div class="card-padrao"><h2>📊 Evolução Semanal</h2><div id="grafico-container"></div></div>
+    <div class="card-padrao"><div class="notif-header"><h2>🔔 Lembretes</h2><span class="notif-badge" id="notif-status-badge">🔕</span></div><div id="notif-container"></div></div>
   </div>
   
-  <div class="view" id="view-folgas"><div class="config-card" style="background:#1a1d27;border-radius:16px;padding:18px"><h2>🌿 Folgas de <span id="folgas-mes-nome"></span></h2><p style="font-size:12px;color:#7b82a0;margin:10px 0">Toque para marcar/desmarcar</p><div class="month-grid" id="month-grid"></div></div></div>
+  <div class="view" id="view-folgas"><div class="card-padrao"><h2>🌿 Folgas de <span id="folgas-mes-nome"></span></h2><p style="font-size:12px;color:#7b82a0;margin:10px 0">Toque para marcar/desmarcar</p><div class="month-grid" id="month-grid"></div></div></div>
   
   <div class="view" id="view-escala"><div class="escala-header" style="margin-bottom:10px;"><span id="escala-mes-nome"></span></div><div id="escala-list"></div></div>
   
-  <div class="view" id="view-historico"><div class="hist-card"><h2>📅 Histórico — <span id="hist-mes-nome"></span></h2><div id="hist-list"></div></div></div>
+  <div class="view" id="view-historico"><div class="card-padrao"><h2>📅 Histórico — <span id="hist-mes-nome"></span></h2><div id="hist-list"></div></div></div>
 
   <div class="view" id="view-config">
-    <div class="config-card" style="background:#1a1d27;border-radius:16px;padding:18px">
-      <h2>⚙️ Configurações do Aplicativo</h2>
-      <p style="font-size:12px;color:#7b82a0;margin:10px 0">Gerenciamento de dados locais</p>
+    <div class="card-padrao">
+      <h2>⚙️ Configurações e Segurança</h2>
+      <p style="font-size:12px;color:#7b82a0;margin:10px 0">Controle de sistema e dados locais</p>
+      
+      <div class="config-section">
+        <h3>🔒 Bloqueio por Senha</h3>
+        <button class="btn-block" id="btn-toggle-senha" onclick="configurarSenha()">Ativar Senha do Aplicativo</button>
+      </div>
+
+      <div class="config-section">
+        <h3>💾 Cópia de Segurança & Relatórios</h3>
+        <button class="btn-block" onclick="exportarBackupJSON()">Exportar Arquivo de Backup (JSON)</button>
+        <button class="btn-block" onclick="document.getElementById('import-file').click()">Importar Arquivo de Backup (JSON)</button>
+        <input type="file" id="import-file" style="display:none" onchange="importarBackupJSON(this)">
+        <button class="btn-block" onclick="exportarCSV()">Exportar Relatório Mensal (CSV)</button>
+        <button class="btn-block" onclick="exportarPDFHTML()">Imprimir / Exportar Relatório (PDF)</button>
+      </div>
       
       <div class="danger-zone">
         <h3 style="font-size:14px;color:#e85555;margin-bottom:8px">Zona de Perigo</h3>
-        <p style="font-size:11px;color:#7b82a0;margin-bottom:12px">Isso apagará permanentemente todos os pontos batidos e folgas salvas neste aparelho.</p>
+        <p style="font-size:11px;color:#7b82a0;margin-bottom:12px">Isso apagará permanentemente todos os registros do aparelho.</p>
         <button class="btn-danger" onclick="limparTodosDados()">Limpar Banco de Dados</button>
       </div>
     </div>
@@ -148,14 +180,30 @@ function updateTitle() {
     document.getElementById('main-title').textContent = dayName + ", " + dayNum + " de " + monthName;
 }
 
+function verificarSenhaAcesso(){
+    let senhaSalva = localStorage.getItem('app_password');
+    if(senhaSalva){
+        let tent = prompt("Digite a senha para abrir o aplicativo:");
+        if(tent !== senhaSalva){
+            alert("Senha incorreta!");
+            document.body.innerHTML = "<div style='padding:40px; text-align:center; color:#e85555;'><h2>Acesso Bloqueado</h2><br><button onclick='window.location.reload()' style='padding:10px; background:#22263a; border:none; color:#fff; border-radius:5px;'>Tentar Novamente</button></div>";
+            return false;
+        }
+    }
+    return true;
+}
+
 function init(){
+    if(!verificarSenhaAcesso()) return;
     updateTitle();
     document.getElementById('today-badge').textContent=isDayOff(now)?'🌿 Folga':'💼 Trabalho';
+    atualizarBotaoSenhaVisual();
     renderWeek();
     renderPonto();
     renderStats();
     renderGrafico();
     renderNotificacoes();
+    renderBancoHoras();
 }
 
 function renderWeek(){let g=document.getElementById('week-grid'),dow=now.getDay(),mon=new Date(now);mon.setDate(now.getDate()-((dow===0?7:dow)-1));g.innerHTML='';for(let i=0;i<7;i++){let d=new Date(mon);d.setDate(mon.getDate()+i);let k=dk(d),isOff=isDayOff(d),isToday=k===todayKey,rec=data[k]||{},checked=rec.saida&&!isOff,c=document.createElement('div');c.className='day-cell'+(isOff?' off-day':' work-day')+(isToday?' today-cell':'')+(checked?' checked':'');c.innerHTML='<div class="dn">'+DAYS[d.getDay()]+'</div><div class="dd">'+d.getDate()+'</div>';c.onclick=()=>abrirModalDia(k);g.appendChild(c)}}
@@ -166,15 +214,55 @@ function renderPonto(){
     let tipos=['entrada','almoco-saida','almoco-volta','saida'],html='';
     tipos.forEach((t,i)=>{
         let val=rec[t],deps=[true,!!rec.entrada,!!rec['almoco-saida'],!!rec['almoco-volta']];
-        /* Alterado com sucesso para o ícone 🫆 */
         html+='<div class="ponto-row"><div><strong>'+LABELS[t]+'</strong><br><small>'+DEFAULT[t]+'</small></div><div style="display:flex;align-items:center;"><span style="margin-right:15px;font-weight:bold;">'+(val||'--:--')+'</span><button class="btn-edit" onclick="abrirModalHora(\''+t+'\')">✏️</button>'+(val?'':'<button class="btn-reg" '+(deps[i]?'':'disabled')+' onclick="baterPonto(\''+t+'\')">🫆</button>')+'</div></div>';
     });
     b.innerHTML=html;
-    if(rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]);document.getElementById('resumo-card').style.display='block';document.getElementById('horas-big').textContent=Math.floor(mt/60)+'h '+String(mt%60).padStart(2,'0')+'m';let mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}document.getElementById('res-ef').innerHTML='<strong>Horas efetivas: '+Math.floor((mt-mi)/60)+'h '+String((mt-mi)%60).padStart(2,'0')+'m</strong>'}else{document.getElementById('resumo-card').style.display='none'}
+    
+    // Processamento e Renderização do Resumo Diário
+    if(rec.entrada&&rec.saida){
+        let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]);
+        document.getElementById('resumo-card').style.display='block';
+        document.getElementById('horas-big').textContent=Math.floor(mt/60)+'h '+String(mt%60).padStart(2,'0')+'m';
+        let mi=0;
+        if(rec['almoco-saida']&&rec['almoco-volta']){
+            let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');
+            mi=(av[0]-as[0])*60+(av[1]-as[1]);
+        }
+        document.getElementById('res-ef').innerHTML='<strong>Horas efetivas: '+Math.floor((mt-mi)/60)+'h '+String((mt-mi)%60).padStart(2,'0')+'m</strong><br><span style="color:#7b82a0; font-size:12px;">Tempo de Intervalo: '+Math.floor(mi/60)+'h '+String(mi%60).padStart(2,'0')+'m</span>';
+    }else{
+        document.getElementById('resumo-card').style.display='none';
+    }
 }
 
-function baterPonto(t){let h=new Date().toTimeString().slice(0,5);data[todayKey]=data[todayKey]||{};data[todayKey][t]=h;save();renderPonto();renderStats();renderWeek();showToast('✅ '+LABELS[t]+': '+h)}let _ht=null;function abrirModalHora(t){_ht=t;let val=(data[todayKey]||{})[t]||DEFAULT[t];document.getElementById('mhtitle').textContent='Editar - '+LABELS[t];document.getElementById('mh-input').value=val;abrirModal('modal-hora')}function salvarHora(){let v=document.getElementById('mh-input').value;if(!v){showToast('Informe o horário');return}data[todayKey]=data[todayKey]||{};data[todayKey][_ht]=v;save();renderPonto();renderStats();renderWeek();fecharModal('modal-hora');showToast('✅ Salvo: '+v)}let _ek=null;function abrirModalDia(k){_ek=k;let date=new Date(k+'T12:00:00'),rec=data[k]||{},isOff=!!rec.folga;document.getElementById('mdtitle').textContent=date.getDate()+' de '+MONTHS[date.getMonth()];document.getElementById('mdsub').textContent=DAYS[date.getDay()];document.getElementById('md-entrada').value=rec.entrada||DEFAULT.entrada;document.getElementById('md-almoco-saida').value=rec['almoco-saida']||DEFAULT['almoco-saida'];document.getElementById('md-almoco-volta').value=rec['almoco-volta']||DEFAULT['almoco-volta'];document.getElementById('md-saida').value=rec.saida||DEFAULT.saida;abrirModal('modal-dia')}function salvarDia(){if(!data[_ek])data[_ek]={};let e=document.getElementById('md-entrada').value,as=document.getElementById('md-almoco-saida').value,av=document.getElementById('md-almoco-volta').value,s=document.getElementById('md-saida').value;if(e)data[_ek].entrada=e;else delete data[_ek].entrada;if(as)data[_ek]['almoco-saida']=as;else delete data[_ek]['almoco-saida'];if(av)data[_ek]['almoco-volta']=av;else delete data[_ek]['almoco-volta'];if(s)data[_ek].saida=s;else delete data[_ek].saida;delete data[_ek].folga;if(Object.keys(data[_ek]).length===0)delete data[_ek];save();renderWeek();renderStats();if(_ek===todayKey)renderPonto();let fv=document.getElementById('view-folgas');if(fv.classList.contains('active'))renderFolgas();let hv=document.getElementById('view-historico');if(hv.classList.contains('active'))renderHistorico();fecharModal('modal-dia');showToast('✅ Dia atualizado!')}function renderFolgas(){let y=now.getFullYear(),m=now.getMonth();document.getElementById('folgas-mes-nome').textContent=MONTHS[m];let grid=document.getElementById('month-grid'),first=new Date(y,m,1).getDay();grid.innerHTML='';for(let i=0;i<first;i++){let e=document.createElement('div');e.className='mcell empty';grid.appendChild(e)}let dias=new Date(y,m+1,0).getDate();for(let d=1;d<=dias;d++){let date=new Date(y,m,d),k=dk(date),isOff=!!(data[k]&&data[k].folga),cell=document.createElement('div');cell.className='mcell'+(isOff?' off':'');cell.innerHTML='<div class="mdn">'+DAYS[date.getDay()]+'</div><div class="mdd">'+d+'</div>';cell.onclick=()=>toggleFolga(k,cell);grid.appendChild(cell)}}function toggleFolga(k,cell){if(!data[k])data[k]={};if(data[k].folga){delete data[k].folga;if(Object.keys(data[k]).length===0)delete data[k];cell.classList.remove('off');showToast('💼 Dia de trabalho')}else{data[k].folga=true;delete data[k].entrada;delete data[k]['almoco-saida'];delete data[k]['almoco-volta'];delete data[k].saida;cell.classList.add('off');showToast('🌿 Marcado como folga')}save();renderWeek();renderStats();if(k===todayKey)renderPonto();renderGrafico()}function renderStats(){let y=now.getFullYear(),m=now.getMonth(),dias=0,folgas=0,min=0,total=new Date(y,m+1,0).getDate();for(let d=1;d<=total;d++){let date=new Date(y,m,d);if(date>now)continue;let k=dk(date),rec=data[k]||{};if(rec.folga){folgas++;continue}if(rec.entrada&&rec.saida){dias++;let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}min+=mt-mi}}document.getElementById('stat-dias').textContent=dias;document.getElementById('stat-folgas').textContent=folgas;document.getElementById('stat-horas').textContent=Math.floor(min/60)+'h';renderGrafico()}function renderHistorico(){let y=now.getFullYear(),m=now.getMonth();document.getElementById('hist-mes-nome').textContent=MONTHS[m];let list=document.getElementById('hist-list'),html='';for(let d=now.getDate();d>=1;d--){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{},isOff=!!rec.folga,status='pendente',horas='—';if(isOff){status='folgou';horas='🌿'}else if(rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}horas=Math.floor((mt-mi)/60)+'h';status='trabalhou'}let lbl={trabalhou:'Trabalhou',folgou:'Folga',pendente:'Pendente'}[status];html+='<div class="hist-item" onclick="abrirModalDia(\''+k+'\')"><div><strong>'+d+' de '+MONTHS[m].slice(0,3)+'</strong><br><small>'+DAYS[date.getDay()]+'</small></div><div><span>'+horas+'</span><span class="badge '+status+'">'+lbl+'</span></div></div>'}list.innerHTML=html||'<p style="text-align:center;padding:20px">Nenhum registro</p>'}function renderEscala(){let y=now.getFullYear(),m=now.getMonth();document.getElementById('escala-mes-nome').textContent=MONTHS[m]+' '+y;let total=new Date(y,m+1,0).getDate(),container=document.getElementById('escala-list'),semanas=[],semana=[];for(let d=1;d<=total;d++){let date=new Date(y,m,d);semana.push(date);if(date.getDay()===0||d===total){semanas.push(semana);semana=[]}}container.innerHTML='';semanas.forEach((sem,idx)=>{let block=document.createElement('div');block.innerHTML='<div style="font-size:10px;color:#7b82a0;margin:10px 0 5px">Semana '+(idx+1)+'</div>';sem.forEach(date=>{let k=dk(date),rec=data[k]||{},isOff=!!rec.folga,isFuture=date>now,isToday=k===todayKey,cls='escala-day',numColor='muted',status='',horas='—',horarios='';if(isOff){cls+=' is-folga';numColor='green';status='🌿 Folga'}else if(rec.entrada&&rec.saida){cls+=' is-trabalhou';numColor='blue';let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}horas=Math.floor((mt-mi)/60)+'h';status='💼 Trabalhou';horarios=rec.entrada+' - '+rec.saida}else if(!isFuture){cls+=' is-pendente';status='⏳ Pendente';horarios=DEFAULT.entrada+' - '+DEFAULT.saida}else{status='💼 Trabalho';horarios=DEFAULT.entrada+' - '+DEFAULT.saida;horas='8h'}if(isToday)cls+=' is-today';let dayEl=document.createElement('div');dayEl.className=cls;dayEl.innerHTML='<div class="eday-date"><div class="eday-num '+numColor+'">'+date.getDate()+'</div><div class="eday-dow">'+DAYS[date.getDay()]+'</div></div><div class="eday-info"><div class="eday-status">'+status+(isToday?' <span style="font-size:10px;background:#e85555;padding:1px 6px;border-radius:4px">HOJE</span>':'')+'</div><div class="eday-horarios">'+horarios+'</div></div><div class="eday-horas">'+horas+'</div>';dayEl.onclick=()=>abrirModalDia(k);block.appendChild(dayEl)});container.appendChild(block)})}function renderGrafico(){let y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate(),semanas=[],semana=[];for(let d=1;d<=total;d++){let date=new Date(y,m,d);semana.push(date);if(date.getDay()===0||d===total){semanas.push(semana);semana=[]}}let horasPorSemana=semanas.map(sem=>{let totalMin=0,diasCompletos=0;sem.forEach(date=>{if(date>now)return;let k=dk(date),rec=data[k]||{};if(rec.folga)return;if(rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}totalMin+=mt-mi;diasCompletos++}});return{totalMin,diasCompletos}});let maxHoras=Math.max(...horasPorSemana.map(h=>h.totalMin),1),alturaMax=100,container=document.getElementById('grafico-container');if(container){container.innerHTML='<div class="bars-container">'+horasPorSemana.map((h,i)=>'<div class="bar-wrapper"><div class="bar" style="height:'+(h.totalMin/maxHoras)*alturaMax+'px"></div><div class="bar-value">'+Math.floor(h.totalMin/60)+'h</div><div class="bar-label">Sem '+(i+1)+'</div></div>').join('')+'</div>'}}function abrirModal(id){document.getElementById(id).classList.add('open')}function fecharModal(id){document.getElementById(id).classList.remove('open')}
+function baterPonto(t){let h=new Date().toTimeString().slice(0,5);data[todayKey]=data[todayKey]||{};data[todayKey][t]=h;save();renderPonto();renderStats();renderWeek();renderBancoHoras();showToast('✅ '+LABELS[t]+': '+h)}
+let _ht=null;function abrirModalHora(t){_ht=t;let val=(data[todayKey]||{})[t]||DEFAULT[t];document.getElementById('mhtitle').textContent='Editar - '+LABELS[t];document.getElementById('mh-input').value=val;abrirModal('modal-hora')}
+function salvarHora(){let v=document.getElementById('mh-input').value;if(!v){showToast('Informe o horário');return}data[todayKey]=data[todayKey]||{};data[todayKey][_ht]=v;save();renderPonto();renderStats();renderWeek();renderBancoHoras();fecharModal('modal-hora');showToast('✅ Salvo: '+v)}
 
+let _ek=null;function abrirModalDia(k){_ek=k;let date=new Date(k+'T12:00:00'),rec=data[k]||{};document.getElementById('mdtitle').textContent=date.getDate()+' de '+MONTHS[date.getMonth()];document.getElementById('mdsub').textContent=DAYS[date.getDay()];document.getElementById('md-entrada').value=rec.entrada||DEFAULT.entrada;document.getElementById('md-almoco-saida').value=rec['almoco-saida']||DEFAULT['almoco-saida'];document.getElementById('md-almoco-volta').value=rec['almoco-volta']||DEFAULT['almoco-volta'];document.getElementById('md-saida').value=rec.saida||DEFAULT.saida;abrirModal('modal-dia')}
+function salvarDia(){if(!data[_ek])data[_ek]={};let e=document.getElementById('md-entrada').value,as=document.getElementById('md-almoco-saida').value,av=document.getElementById('md-almoco-volta').value,s=document.getElementById('md-saida').value;if(e)data[_ek].entrada=e;else delete data[_ek].entrada;if(as)data[_ek]['almoco-saida']=as;else delete data[_ek]['almoco-saida'];if(av)data[_ek]['almoco-volta']=av;else delete data[_ek]['almoco-volta'];if(s)data[_ek].saida=s;else delete data[_ek].saida;delete data[_ek].folga;if(Object.keys(data[_ek]).length===0)delete data[_ek];save();renderWeek();renderStats();renderBancoHoras();if(_ek===todayKey)renderPonto();fecharModal('modal-dia');showToast('✅ Dia atualizado!')}
+
+function renderFolgas(){let y=now.getFullYear(),m=now.getMonth();document.getElementById('folgas-mes-nome').textContent=MONTHS[m];let grid=document.getElementById('month-grid'),first=new Date(y,m,1).getDay();grid.innerHTML='';for(let i=0;i<first;i++){let e=document.createElement('div');e.className='mcell empty';grid.appendChild(e)}let dias=new Date(y,m+1,0).getDate();for(let d=1;d<=dias;d++){let date=new Date(y,m,d),k=dk(date),isOff=!!(data[k]&&data[k].folga),cell=document.createElement('div');cell.className='mcell'+(isOff?' off':'');cell.innerHTML='<div class="mdn">'+DAYS[date.getDay()]+'</div><div class="mdd">'+d+'</div>';cell.onclick=()=>toggleFolga(k,cell);grid.appendChild(cell)}}
+function toggleFolga(k,cell){if(!data[k])data[k]={};if(data[k].folga){delete data[k].folga;cell.classList.remove('off');showToast('💼 Dia de trabalho')}else{data[k].folga=true;delete data[k].entrada;delete data[k]['almoco-saida'];delete data[k]['almoco-volta'];delete data[k].saida;cell.classList.add('off');showToast('🌿 Marcado como folga')}save();renderWeek();renderStats();renderBancoHoras();if(k===todayKey)renderPonto();}
+
+function renderStats(){let y=now.getFullYear(),m=now.getMonth(),dias=0,folgas=0,min=0,total=new Date(y,m+1,0).getDate();for(let d=1;d<=total;d++){let date=new Date(y,m,d);if(date>now)continue;let k=dk(date),rec=data[k]||{};if(rec.folga){folgas++;continue}if(rec.entrada&&rec.saida){dias++;let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}min+=mt-mi}}document.getElementById('stat-dias').textContent=dias;document.getElementById('stat-folgas').textContent=folgas;document.getElementById('stat-horas').textContent=Math.floor(min/60)+'h';renderGrafico()}
+
+function renderBancoHoras(){let totalMinutos=parseInt(localStorage.getItem('banco_horas_base'))||0,y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate();for(let d=1;d<=total;d++){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{};if(!rec.folga&&rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}let efetivo=mt-mi,saldoDia=efetivo-440;totalMinutos+=saldoDia;}}let sinal=totalMinutos>=0?'':'-',absMin=Math.abs(totalMinutos);document.getElementById('banco-horas-valor').textContent=sinal+Math.floor(absMin/60)+'h '+String(absMin%60).padStart(2,'0')+'m';document.getElementById('banco-horas-valor').style.color=totalMinutos>=0?'#38d9a9':'#e85555';}
+function ajustarBancoHoras(){let atual=parseInt(localStorage.getItem('banco_horas_base'))||0,novo=prompt("Defina o saldo base inicial do Banco de Horas (em minutos):",atual);if(novo!==null){localStorage.setItem('banco_horas_base',parseInt(novo)||0);renderBancoHoras();showToast("Banco atualizado!");}}
+
+function configurarSenha(){let atual=localStorage.getItem('app_password');if(atual){if(confirm("Deseja remover a senha de proteção de acesso?")){localStorage.removeItem('app_password');showToast("🔒 Senha removida");atualizarBotaoSenhaVisual();}}else{let nova=prompt("Defina uma senha de acesso numérica ou de texto:");if(nova){localStorage.setItem('app_password',nova);showToast("🔒 Senha ativada!");atualizarBotaoSenhaVisual();}}}
+function atualizarBotaoSenhaVisual(){let btn=document.getElementById('btn-toggle-senha');if(!btn)return;let atual=localStorage.getItem('app_password');btn.textContent=atual?"Desativar Senha Interna":"Ativar Senha do Aplicativo";btn.style.background=atual?"#e85555":"#22263a";}
+
+function exportarBackupJSON(){let dataStr="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(data)),dlAnchor=document.createElement('a');dlAnchor.setAttribute("href",dataStr);dlAnchor.setAttribute("download","backup_escala_eliezer.json");document.body.appendChild(dlAnchor);dlAnchor.click();dlAnchor.remove();showToast("📦 Backup exportado!");}
+function importarBackupJSON(input){let file=input.files[0];if(!file)return;let reader=new FileReader();reader.onload=function(e){try{let parsed=JSON.parse(e.target.result);if(typeof parsed==='object'){data=parsed;save();init();showToast("✅ Backup restaurado com sucesso!");}}catch(err){alert("Arquivo inválido");}};reader.readAsText(file);}
+
+function exportarCSV(){let csv="Data,Entrada,Intervalo Saída,Intervalo Retorno,Saída,Folga\n",y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate();for(let d=1;d<=total;d++){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{};csv+=`${k},${rec.entrada||''},${rec['almoco-saida']||''},${rec['almoco-volta']||''},${rec.saida||''},${rec.folga?'Sim':'Não'}\n`;}let blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`relatorio_escala_${m+1}_${y}.csv`;a.click();showToast("📊 CSV Gerado!");}
+function exportarPDFHTML(){let y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate(),w=window.open();w.document.write(`<html><head><title>Relatório Escala</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ccc;padding:8px;text-align:center;}th{background:#f2f2f2;}</style></head><body><h2>Relatório Mensal - ${MONTHS[m]} de ${y}</h2><table><tr><th>Data</th><th>Entrada</th><th>Int. Saída</th><th>Int. Retorno</th><th>Saída</th><th>Status</th></tr>`);for(let d=1;d<=total;d++){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{};w.document.write(`<tr><td>${d}/${m+1}</td><td>${rec.entrada||'--'}</td><td>${rec['almoco-saida']||'--'}</td><td>${rec['almoco-volta']||'--'}</td><td>${rec.saida||'--'}</td><td>${rec.folga?'Folga':'Trabalho'}</td></tr>`);}w.document.write(`</table></body></html>`);w.document.close();w.print();showToast("🖨️ Janela de Impressão Aberta");}
+
+function renderHistorico(){let y=now.getFullYear(),m=now.getMonth();document.getElementById('hist-mes-nome').textContent=MONTHS[m];let list=document.getElementById('hist-list'),html='';for(let d=now.getDate();d>=1;d--){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{},isOff=!!rec.folga,status='pendente',horas='—';if(isOff){status='folgou';horas='🌿'}else if(rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}horas=Math.floor((mt-mi)/60)+'h';status='trabalhou'}let lbl={trabalhou:'Trabalhou',folgou:'Folga',pendente:'Pendente'}[status];html+='<div class="hist-item" onclick="abrirModalDia(\''+k+'\')"><div><strong>'+d+' de '+MONTHS[m].slice(0,3)+'</strong><br><small>'+DAYS[date.getDay()]+'</small></div><div><span>'+horas+'</span><span class="badge '+status+'">'+lbl+'</span></div></div>'}list.innerHTML=html||'<p style="text-align:center;padding:20px">Nenhum registro</p>'}
+function renderEscala(){let y=now.getFullYear(),m=now.getMonth();document.getElementById('escala-mes-nome').textContent=MONTHS[m]+' '+y;let total=new Date(y,m+1,0).getDate(),container=document.getElementById('escala-list'),semanas=[],semana=[];for(let d=1;d<=total;d++){let date=new Date(y,m,d);semana.push(date);if(date.getDay()===0||d===total){semanas.push(semana);semana=[]}}container.innerHTML='';semanas.forEach((sem,idx)=>{let block=document.createElement('div');block.innerHTML='<div style="font-size:10px;color:#7b82a0;margin:10px 0 5px">Semana '+(idx+1)+'</div>';sem.forEach(date=>{let k=dk(date),rec=data[k]||{},isOff=!!rec.folga,isFuture=date>now,isToday=k===todayKey,cls='escala-day',numColor='muted',status='',horas='—',horarios='';if(isOff){cls+=' is-folga';numColor='green';status='🌿 Folga'}else if(rec.entrada&&rec.saida){cls+=' is-trabalhou';numColor='blue';let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}horas=Math.floor((mt-mi)/60)+'h';status='💼 Trabalhou';horarios=rec.entrada+' - '+rec.saida}else if(!isFuture){cls+=' is-pendente';status='⏳ Pendente';horarios=DEFAULT.entrada+' - '+DEFAULT.saida}else{status='💼 Trabalho';horarios=DEFAULT.entrada+' - '+DEFAULT.saida;horas='8h'}if(isToday)cls+=' is-today';let dayEl=document.createElement('div');dayEl.className=cls;dayEl.innerHTML='<div class="eday-date"><div class="eday-num '+numColor+'">'+date.getDate()+'</div><div class="eday-dow">'+DAYS[date.getDay()]+'</div></div><div class="eday-info"><div class="eday-status">'+status+(isToday?' <span style="font-size:10px;background:#e85555;padding:1px 6px;border-radius:4px">HOJE</span>':'')+'</div><div class="eday-horarios">'+horarios+'</div></div><div class="eday-horas">'+horas+'</div>';dayEl.onclick=()=>abrirModalDia(k);block.appendChild(dayEl)});container.appendChild(block)})}
+function renderGrafico(){let y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate(),semanas=[],semana=[];for(let d=1;d<=total;d++){let date=new Date(y,m,d);semana.push(date);if(date.getDay()===0||d===total){semanas.push(semana);semana=[]}}let horasPorSemana=semanas.map(sem=>{let totalMin=0,diasCompletos=0;sem.forEach(date=>{if(date>now)return;let k=dk(date),rec=data[k]||{};if(rec.folga)return;if(rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}totalMin+=mt-mi;diasCompletos++}});return{totalMin,diasCompletos}});let maxHoras=Math.max(...horasPorSemana.map(h=>h.totalMin),1),alturaMax=100,container=document.getElementById('grafico-container');if(container){container.innerHTML='<div class="bars-container">'+horasPorSemana.map((h,i)=>'<div class="bar-wrapper"><div class="bar" style="height:'+(h.totalMin/maxHoras)*alturaMax+'px"></div><div class="bar-value">'+Math.floor(h.totalMin/60)+'h</div><div class="bar-label">Sem '+(i+1)+'</div></div>').join('')+'</div>'}}
+
+function abrirModal(id){document.getElementById(id).classList.add('open')}function fecharModal(id){document.getElementById(id).classList.remove('open')}
 function switchView(v){
     document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active'));
@@ -183,20 +271,12 @@ function switchView(v){
     if(v==='historico')renderHistorico();
     if(v==='folgas')renderFolgas();
     if(v==='escala')renderEscala();
-    if(v==='hoje'){renderGrafico();renderNotificacoes()}
+    if(v==='hoje'){renderGrafico();renderNotificacoes();renderBancoHoras();}
 }
+function limparTodosDados(){if(confirm("Deseja redefinir completamente o aplicativo?")){localStorage.clear();data={};init();switchView('hoje');showToast('🗑️ Dados limpos!');}}
+function showToast(m){let t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
 
-function limparTodosDados(){
-    if(confirm("Tem certeza que deseja apagar TODOS os seus registros de ponto e folgas de forma irreversível?")){
-        localStorage.removeItem(KEY);
-        data={};
-        init();
-        switchView('hoje');
-        showToast('🗑️ Banco de dados limpo!');
-    }
-}
-
-function showToast(m){let t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}let notifPermission=false,notifTimers=[],NOTIF_KEY='notificacoes_config';function loadNotifConfig(){try{let saved=localStorage.getItem(NOTIF_KEY);if(saved)return JSON.parse(saved)}catch(e){}return{enabled:true,horarios:['13:50','15:50','16:50','22:10']}}function saveNotifConfig(c){localStorage.setItem(NOTIF_KEY,JSON.stringify(c))}async function solicitarPermissaoNotificacao(){if(!('Notification'in window)){showToast('❌ Navegador não suporta notificações');return false}if(Notification.permission==='granted'){notifPermission=true;showToast('✅ Notificações permitidas!');renderNotificacoes();agendarNotificacoes();return true}if(Notification.permission!=='denied'){let result=await Notification.requestPermission();if(result==='granted'){notifPermission=true;showToast('🔔 Notificações ativadas!');renderNotificacoes();agendarNotificacoes();return true}else{showToast('⚠️ Permissão negada');renderNotificacoes();return false}}return false}function enviarNotificacao(titulo,corpo,tipo){if(!notifPermission&&Notification.permission==='granted')notifPermission=true;if(!notifPermission)return;if(isDayOff(now))return;let rec=data[todayKey]||{},jaRegistrado=false;if(tipo==='entrada'&&rec.entrada)jaRegistrado=true;if(tipo==='almoco-saida'&&rec['almoco-saida'])jaRegistrado=true;if(tipo==='almoco-volta'&&rec['almoco-volta'])jaRegistrado=true;if(tipo==='saida'&&rec.saida)jaRegistrado=true;if(jaRegistrado)return;new Notification(titulo,{body:corpo,icon:'https://cdn-icons-png.flaticon.com/512/2838/2838912.png',silent:false})}function cancelarNotificacoesHoje(){notifTimers.forEach(t=>clearTimeout(t));notifTimers=[]}function agendarNotificacoes(){cancelarNotificacoesHoje();let config=loadNotifConfig();if(!config.enabled)return;if(!notifPermission&&Notification.permission!=='granted')return;if(isDayOff(now))return;let tipos=['entrada','almoco-saida','almoco-volta','saida'],titulos={entrada:'⏰ Hora da Entrada!','almoco-saida':'🍽️ Hora do Almoço!','almoco-volta':'🔙 Volta do Almoço!',saida:'🏠 Hora de Sair!'},corpos={entrada:'👉 Registre sua entrada','almoco-saida':'👉 Registre saída para almoço','almoco-volta':'👉 Registre retorno do almoço',saida:'👉 Registre sua saída'},agora=new Date();config.horarios.forEach((horario,idx)=>{let[h,m]=horario.split(':').map(Number),dataNotif=new Date();dataNotif.setHours(h,m,0,0);let delay=dataNotif.getTime()-agora.getTime();if(delay<0&&idx===0){dataNotif.setDate(dataNotif.getDate()+1);delay=dataNotif.getTime()-agora.getTime()}if(delay>0&&delay<24*60*60*1000){let timer=setTimeout(()=>{enviarNotificacao(titulos[tipos[idx]],corpos[tipos[idx]],tipos[idx])},delay);notifTimers.push(timer)}})}function renderNotificacoes(){let container=document.getElementById('notif-container');if(!container)return;let config=loadNotifConfig(),hasPermission=Notification.permission==='granted';notifPermission=hasPermission;let badge=document.getElementById('notif-status-badge');if(badge){badge.textContent=hasPermission?'🔔 ATIVO':'🔕 INATIVO';badge.style.background=hasPermission?'#38d9a9':'#22263a'}container.innerHTML='<div class="notif-horarios">'+['Entrada','Saída almoço','Volta almoço','Saída'].map((l,i)=>'<div class="notif-horario-row"><label>'+l+'</label><input type="time" id="notif-time-'+i+'" value="'+(config.horarios[i]||'14:00')+'" '+(hasPermission?'':'disabled')+'></div>').join('')+'</div><div class="notif-status" style="display:flex;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:8px"><span>'+(hasPermission?'✅ Notificações permitidas':'⚠️ Permissão necessária')+'</span><button class="btn-notif '+(hasPermission?'':'primary')+'" onclick="solicitarPermissaoNotificacao()">'+(hasPermission?'🔔 Testar':'🔔 Ativar')+'</button><button class="btn-notif" onclick="salvarHorariosNotificacao()">💾 Salvar</button></div>'}function salvarHorariosNotificacao(){let novosHorarios=[];for(let i=0;i<4;i++){let input=document.getElementById('notif-time-'+i);if(input&&input.value)novosHorarios.push(input.value)}if(novosHorarios.length===4){let config=loadNotifConfig();config.horarios=novosHorarios;saveNotifConfig(config);showToast('✅ Horários salvos!');agendarNotificacoes()}else{showToast('⚠️ Preencha todos os horários')}}if('Notification'in window&&Notification.permission==='granted'){notifPermission=true;agendarNotificacoes()}window.solicitarPermissaoNotificacao=solicitarPermissaoNotificacao;window.salvarHorariosNotificacao=salvarHorariosNotificacao;init();
+let notifPermission=false,notifTimers=[],NOTIF_KEY='notificacoes_config';function loadNotifConfig(){try{let saved=localStorage.getItem(NOTIF_KEY);if(saved)return JSON.parse(saved)}catch(e){}return{enabled:true,horarios:['13:50','15:50','16:50','22:10']}}function saveNotifConfig(c){localStorage.setItem(NOTIF_KEY,JSON.stringify(c))}async function solicitarPermissaoNotificacao(){if(!('Notification'in window)){showToast('❌ Não suportado');return false}if(Notification.permission==='granted'){notifPermission=true;showToast('✅ Permitido!');renderNotificacoes();agendarNotificacoes();return true}let result=await Notification.requestPermission();if(result==='granted'){notifPermission=true;agendarNotificacoes();renderNotificacoes();return true}return false}function agendarNotificacoes(){let config=loadNotifConfig();if(!config.enabled||isDayOff(now))return;let tipos=['entrada','almoco-saida','almoco-volta','saida'],agora=new Date();config.horarios.forEach((horario,idx)=>{let[h,m]=horario.split(':').map(Number),dataNotif=new Date();dataNotif.setHours(h,m,0,0);let delay=dataNotif.getTime()-agora.getTime();if(delay>0){let timer=setTimeout(()=>{if(!isDayOff(new Date())){new Notification('⏰ Lembrete de Ponto',{body:'Não se esqueça de registrar seu ponto agora!'})}},delay);notifTimers.push(timer)}})}function renderNotificacoes(){let container=document.getElementById('notif-container');if(!container)return;let config=loadNotifConfig(),hasPermission=Notification.permission==='granted';let badge=document.getElementById('notif-status-badge');if(badge)badge.textContent=hasPermission?'🔔 ATIVO':'🔕 INATIVO';container.innerHTML='<div class="notif-horarios">'+['Entrada','Saída almoço','Volta almoço','Saída'].map((l,i)=>'<div class="notif-horario-row"><label>'+l+'</label><input type="time" id="notif-time-'+i+'" value="'+(config.horarios[i]||'14:00')+'"></div>').join('')+'</div><div style="display:flex;justify-content:space-between;margin-top:12px;gap:8px"><button class="btn-notif" onclick="solicitarPermissaoNotificacao()">Ativar/Testar</button><button class="btn-notif" onclick="salvarHorariosNotificacao()">💾 Salvar</button></div>'}function salvarHorariosNotificacao(){let novosHorarios=[];for(let i=0;i<4;i++){let input=document.getElementById('notif-time-'+i);if(input)novosHorarios.push(input.value)}let config=loadNotifConfig();config.horarios=novosHorarios;saveNotifConfig(config);showToast('✅ Horários salvos!');}init();
 </script>
 </body>
 </html>
