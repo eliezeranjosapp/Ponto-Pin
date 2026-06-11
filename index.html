@@ -27,7 +27,7 @@
   .day-cell.today-cell{background:#22263a;border-width:2px;}
   .ponto-card{background:#1a1d27;border-radius:16px;padding:18px;margin-bottom:20px;}
   .ponto-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #2e3350;}
-  .btn-reg{background:#e85555;color:#fff;border:none;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:15px;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;gap:5px;}
+  .btn-reg{background:#e85555;color:#fff;border:none;padding:8px 18px;border-radius:8px;cursor:pointer;font-size:15px;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;}
   .btn-reg:disabled{background:#22263a;color:#555;cursor:not-allowed;}
   .btn-edit{background:transparent;border:1px solid #2e3350;color:#7b82a0;padding:5px 8px;border-radius:7px;cursor:pointer;margin-right:5px;}
   .btn-sm{background:#22263a;border:1px solid #2e3350;color:#7b82a0;padding:5px 11px;border-radius:8px;cursor:pointer;}
@@ -52,6 +52,16 @@
   .badge.trabalhou{background:rgba(232,85,85,0.15);color:#e85555;}
   .badge.folgou{background:rgba(56,217,169,0.1);color:#38d9a9;}
   .badge.pendente{background:rgba(123,130,160,0.1);color:#7b82a0;}
+  .escala-day{display:flex;align-items:center;background:#1a1d27;border:1px solid #2e3350;border-radius:12px;padding:11px 14px;margin-bottom:6px;cursor:pointer;gap:12px;}
+  .escala-day.is-today{border-color:#e85555;}
+  .escala-day.is-folga{border-color:#38d9a9;}
+  .escala-day.is-trabalhou{border-color:#e85555;}
+  .eday-date .eday-num{font-size:22px;font-weight:900;}
+  .eday-date .eday-num.blue{color:#e85555;}
+  .eday-date .eday-num.green{color:#38d9a9;}
+  .eday-info{flex:1;}
+  .eday-status{font-size:13px;font-weight:700;}
+  .eday-horas{font-size:13px;font-weight:700;color:#e85555;}
   nav{position:fixed;bottom:0;left:0;right:0;background:#1a1d27;display:flex;padding:12px 0 calc(12px + env(safe-area-inset-bottom));border-top:1px solid #2e3350;z-index:99;}
   .nav-btn{flex:1;background:none;border:none;color:#7b82a0;font-size:11px;cursor:pointer;font-weight:bold;display:flex;flex-direction:column;align-items:center;gap:4px;}
   .nav-btn.active{color:#e85555;}
@@ -68,17 +78,35 @@
   .toast{position:fixed;bottom:95px;left:50%;transform:translateX(-50%);background:#22263a;padding:10px 20px;border-radius:10px;opacity:0;transition:0.25s;pointer-events:none;z-index:200;border:1px solid #2e3350;}
   .toast.show{opacity:1;}
   .view{display:none;}.view.active{display:block;}
+  .notif-header{display:flex;justify-content:space-between;margin-bottom:14px;}
+  .notif-badge{background:#38d9a9;color:#000;font-size:10px;padding:4px 10px;border-radius:20px;}
+  .notif-horario-row{display:flex;justify-content:space-between;margin:10px 0;align-items:center;}
+  .notif-horario-row input{background:#22263a;border:1px solid #2e3350;color:#fff;padding:8px;border-radius:8px;}
+  .btn-notif{background:#22263a;border:1px solid #2e3350;color:#fff;padding:8px 16px;border-radius:10px;cursor:pointer;}
   #lock-screen{position:fixed;inset:0;background:#0f1117;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
-  .pin-input-field{background:#1a1d27;border:2px solid #2e3350;color:#fff;font-size:28px;text-align:center;padding:12px;border-radius:12px;width:160px;letter-spacing:10px;margin-top:20px;font-weight:bold;}
+  .pin-dots{display:flex;gap:15px;margin:30px 0;}
+  .pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid #2e3350;transition: background 0.1s;}
+  .pin-dot.filled{background:#e85555;border-color:#e85555;}
+  .pin-keyboard{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;width:100%;max-width:280px;}
+  .pin-btn{background:#1a1d27;border:1px solid #2e3350;color:#fff;font-size:24px;font-weight:bold;padding:15px;border-radius:50%;aspect-ratio:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .pin-btn:active{background:#22263a;}
 </style>
 </head>
 <body>
 
 <div id="lock-screen" style="display:none;">
-  <div style="font-size:50px; margin-bottom:15px;">🌀</div>
-  <h2 style="font-size:18px;font-weight:bold;margin-bottom:5px;">Acesso Protegido</h2>
-  <p style="font-size:12px;color:#7b82a0;">Digite seu PIN de 4 dígitos</p>
-  <input type="password" id="lock-input" class="pin-input-field" maxlength="4" pattern="\d*" inputmode="numeric" oninput="checarPinAcesso(this)">
+  <div style="font-size:40px; margin-bottom:10px;">🌀</div>
+  <h2 style="font-size:18px;font-weight:bold;margin-bottom:5px;">Aplicativo Bloqueado</h2>
+  <p style="font-size:12px;color:#7b82a0;">Insira seu PIN numérico</p>
+  <div class="pin-dots" id="lock-dots">
+    <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+  </div>
+  <div class="pin-keyboard">
+    <button class="pin-btn" onclick="pressPin(1)">1</button><button class="pin-btn" onclick="pressPin(2)">2</button><button class="pin-btn" onclick="pressPin(3)">3</button>
+    <button class="pin-btn" onclick="pressPin(4)">4</button><button class="pin-btn" onclick="pressPin(5)">5</button><button class="pin-btn" onclick="pressPin(6)">6</button>
+    <button class="pin-btn" onclick="pressPin(7)">7</button><button class="pin-btn" onclick="pressPin(8)">8</button><button class="pin-btn" onclick="pressPin(9)">9</button>
+    <button class="pin-btn" style="background:transparent;border:none;font-size:14px;color:#7b82a0;" onclick="clearPin()">Limpar</button><button class="pin-btn" onclick="pressPin(0)">0</button><button class="pin-btn" style="background:transparent;border:none;font-size:14px;color:#e85555;" onclick="backspacePin()">⌫</button>
+  </div>
 </div>
 
 <div id="app-content" style="display:none;">
@@ -117,7 +145,7 @@
   
   <div class="view" id="view-folgas"><div class="card-padrao"><h2>🌿 Folgas de <span id="folgas-mes-nome"></span></h2><p style="font-size:12px;color:#7b82a0;margin:10px 0">Toque para marcar/desmarcar</p><div class="month-grid" id="month-grid"></div></div></div>
   
-  <div class="view" id="view-escala"><div class="escala-header" style="margin-bottom:10px;"><span id="escala-mes-nome"></span></div><div id="escala-list"></div></div>
+  <div class="view" id="view-escala"><div class="card-padrao"><h2>📅 Escala Mensal — <span id="escala-mes-nome"></span></h2><div id="escala-list"></div></div></div>
   
   <div class="view" id="view-historico"><div class="card-padrao"><h2>📅 Histórico — <span id="hist-mes-nome"></span></h2><div id="hist-list"></div></div></div>
 
@@ -166,13 +194,14 @@
 const DAYS_FULL=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'],DAYS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],KEY='escala_v4',DEFAULT={entrada:'14:00','almoco-saida':'16:00','almoco-volta':'17:00',saida:'22:20'},LABELS={entrada:'Entrada','almoco-saida':'Intervalo','almoco-volta':'Retorno',saida:'Saída'};
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{return{}}}function save(){localStorage.setItem(KEY,JSON.stringify(data))}let data=load(),now=new Date(),todayKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');function dk(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}function isDayOff(d){return!!(data[dk(d)]&&data[dk(d)].folga)}
 
+let currentPinInput = "";
 function verificarSenhaAcesso(){
     let pinSalvo = localStorage.getItem('app_pin');
     if(pinSalvo){
         document.getElementById('app-content').style.display = 'none';
         document.getElementById('lock-screen').style.display = 'flex';
-        let field = document.getElementById('lock-input');
-        if(field) { field.value = ""; field.focus(); }
+        currentPinInput = "";
+        updatePinDots();
     } else {
         document.getElementById('lock-screen').style.display = 'none';
         document.getElementById('app-content').style.display = 'block';
@@ -180,18 +209,33 @@ function verificarSenhaAcesso(){
     }
 }
 
-function checarPinAcesso(input) {
-    if(input.value.length === 4) {
-        let pinSalvo = localStorage.getItem('app_pin');
-        if(input.value === pinSalvo) {
-            document.getElementById('lock-screen').style.display = 'none';
-            document.getElementById('app-content').style.display = 'block';
-            runApp();
-        } else {
-            showToast("❌ PIN Incorreto!");
-            input.value = "";
-        }
+function pressPin(num) {
+    if(currentPinInput.length < 4) {
+        currentPinInput += num;
+        updatePinDots();
     }
+    if(currentPinInput.length === 4) {
+        setTimeout(() => {
+            let pinSalvo = localStorage.getItem('app_pin');
+            if(currentPinInput === pinSalvo) {
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+                runApp();
+            } else {
+                showToast("❌ PIN Incorreto!");
+                clearPin();
+            }
+        }, 150);
+    }
+}
+function clearPin() { currentPinInput = ""; updatePinDots(); }
+function backspacePin() { currentPinInput = currentPinInput.slice(0, -1); updatePinDots(); }
+function updatePinDots() {
+    let dots = document.querySelectorAll('#lock-dots .pin-dot');
+    dots.forEach((dot, idx) => {
+        if(idx < currentPinInput.length) dot.classList.add('filled');
+        else dot.classList.remove('filled');
+    });
 }
 
 function updateTitle() {
@@ -271,7 +315,9 @@ function exportarCSV(){let csv="Data,Entrada,Intervalo Saída,Intervalo Retorno,
 function exportarPDFHTML(){let y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate(),w=window.open();w.document.write(`<html><head><title>Relatório Escala</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ccc;padding:8px;text-align:center;}th{background:#f2f2f2;}</style></head><body><h2>Relatório Mensal - ${MONTHS[m]} de ${y}</h2><table><tr><th>Data</th><th>Entrada</th><th>Int. Saída</th><th>Int. Retorno</th><th>Saída</th><th>Status</th></tr>`);for(let d=1;d<=total;d++){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{};w.document.write(`<tr><td>${d}/${m+1}</td><td>${rec.entrada||'--'}</td><td>${rec['almoco-saida']||'--'}</td><td>${rec['almoco-volta']||'--'}</td><td>${rec.saida||'--'}</td><td>${rec.folga?'Folga':'Escala'}</td></tr>`);}w.document.write(`</table></body></html>`);w.document.close();w.print();showToast("🖨️ Janela de Impressão Aberta");}
 
 function renderHistorico(){let y=now.getFullYear(),m=now.getMonth();document.getElementById('hist-mes-nome').textContent=MONTHS[m];let list=document.getElementById('hist-list'),html='';for(let d=now.getDate();d>=1;d--){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{},isOff=!!rec.folga,status='pendente',horas='—';if(isOff){status='folgou';horas='🌿'}else if(rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}horas=Math.floor((mt-mi)/60)+'h';status='trabalhou'}let lbl={trabalhou:'Trabalhou',folgou:'Folga',pendente:'Pendente'}[status];html+='<div class="hist-item" onclick="abrirModalDia(\''+k+'\')"><div><strong>'+d+' de '+MONTHS[m].slice(0,3)+'</strong><br><small>'+DAYS[date.getDay()]+'</small></div><div><span>'+horas+'</span><span class="badge '+status+'">'+lbl+'</span></div></div>'}list.innerHTML=html||'<p style="text-align:center;padding:20px">Nenhum registro</p>'}
+
 function renderEscala(){let y=now.getFullYear(),m=now.getMonth();document.getElementById('escala-mes-nome').textContent=MONTHS[m]+' '+y;let total=new Date(y,m+1,0).getDate(),container=document.getElementById('escala-list'),semanas=[],semana=[];for(let d=1;d<=total;d++){let date=new Date(y,m,d);semana.push(date);if(date.getDay()===0||d===total){semanas.push(semana);semana=[]}}container.innerHTML='';semanas.forEach((sem,idx)=>{let block=document.createElement('div');block.innerHTML='<div style="font-size:10px;color:#7b82a0;margin:10px 0 5px">Semana '+(idx+1)+'</div>';sem.forEach(date=>{let k=dk(date),rec=data[k]||{},isOff=!!rec.folga,isFuture=date>now,isToday=k===todayKey,cls='escala-day',numColor='muted',status='',horas='—',horarios='';if(isOff){cls+=' is-folga';numColor='green';status='🌿 Folga'}else if(rec.entrada&&rec.saida){cls+=' is-trabalhou';numColor='blue';let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}horas=Math.floor((mt-mi)/60)+'h';status='💼 Trabalhou';horarios=rec.entrada+' - '+rec.saida}else if(!isFuture){cls+=' is-pendente';status='⏳ Pendente';horarios=DEFAULT.entrada+' - '+DEFAULT.saida}else{status='💼 Escala';horarios=DEFAULT.entrada+' - '+DEFAULT.saida;horas='8h'}if(isToday)cls+=' is-today';let dayEl=document.createElement('div');dayEl.className=cls;dayEl.innerHTML='<div class="eday-date"><div class="eday-num '+numColor+'">'+date.getDate()+'</div><div class="eday-dow">'+DAYS[date.getDay()]+'</div></div><div class="eday-info"><div class="eday-status">'+status+(isToday?' <span style="font-size:10px;background:#e85555;padding:1px 6px;border-radius:4px">HOJE</span>':'')+'</div><div class="eday-horarios">'+horarios+'</div></div><div class="eday-horas">'+horas+'</div>';dayEl.onclick=()=>abrirModalDia(k);block.appendChild(dayEl)});container.appendChild(block)})}
+
 function renderGrafico(){let y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate(),semanas=[],semana=[];for(let d=1;d<=total;d++){let date=new Date(y,m,d);semana.push(date);if(date.getDay()===0||d===total){semanas.push(semana);semana=[]}}let horasPorSemana=semanas.map(sem=>{let totalMin=0,diasCompletos=0;sem.forEach(date=>{if(date>now)return;let k=dk(date),rec=data[k]||{};if(rec.folga)return;if(rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}totalMin+=mt-mi;diasCompletos++}});return{totalMin,diasCompletos}});let maxHoras=Math.max(...horasPorSemana.map(h=>h.totalMin),1),alturaMax=100,container=document.getElementById('grafico-container');if(container){container.innerHTML='<div class="bars-container">'+horasPorSemana.map((h,i)=>'<div class="bar-wrapper"><div class="bar" style="height:'+(h.totalMin/maxHoras)*alturaMax+'px"></div><div class="bar-value">'+Math.floor(h.totalMin/60)+'h</div><div class="bar-label">Sem '+(i+1)+'</div></div>').join('')+'</div>'}}
 
 function abrirModal(id){document.getElementById(id).classList.add('open')}function fecharModal(id){document.getElementById(id).classList.remove('open')}
@@ -306,9 +352,8 @@ function limparTodosDados(){
 
 function showToast(m){let t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
 
-let notifPermission=false,notifTimers=[],NOTIF_KEY='notificacoes_config';function loadNotifConfig(){try{let saved=localStorage.getItem(NOTIF_KEY);if(saved)return JSON.parse(saved)}catch(e){}return{enabled:true,horarios:['13:50','15:50','16:50','22:10']}}function saveNotifConfig(c){localStorage.setItem(NOTIF_KEY,stringify(c))}async function solicitarPermissaoNotificacao(){if(!('Notification'in window)){showToast('❌ Não suportado');return false}if(Notification.permission==='granted'){notifPermission=true;showToast('✅ Permitido!');renderNotificacoes();agendarNotificacoes();return true}let result=await Notification.requestPermission();if(result==='granted'){notifPermission=true;agendarNotificacoes();renderNotificacoes();return true}return false}function agendarNotificacoes(){let config=loadNotifConfig();if(!config.enabled||isDayOff(now))return;let tipos=['entrada','almoco-saida','almoco-volta','saida'],agora=new Date();config.horarios.forEach((horario,idx)=>{let[h,m]=horario.split(':').map(Number),dataNotif=new Date();dataNotif.setHours(h,m,0,0);let delay=dataNotif.getTime()-agora.getTime();if(delay>0){let timer=setTimeout(()=>{if(!isDayOff(new Date())){new Notification('⏰ Lembrete de Ponto',{body:'Não se esqueça de registrar seu ponto agora!'})}},delay);notifTimers.push(timer)}})}function renderNotificacoes(){let container=document.getElementById('notif-container');if(!container)return;let config=loadNotifConfig(),hasPermission=Notification.permission==='granted';let badge=document.getElementById('notif-status-badge');if(badge)badge.textContent=hasPermission?'🔔 ATIVO':'🔕 INATIVO';container.innerHTML='<div class="notif-horarios">'+['Entrada','Saída almoço','Volta almoço','Saída'].map((l,i)=>'<div class="notif-horario-row"><label>'+l+'</label><input type="time" id="notif-time-'+i+'" value="'+(config.horarios[i]||'14:00')+'"></div>').join('')+'</div><div style="display:flex;justify-content:space-between;margin-top:12px;gap:8px"><button class="btn-notif" onclick="solicitarPermissaoNotificacao()">Ativar/Testar</button><button class="btn-notif" onclick="salvarHorariosNotificacao()">💾 Salvar</button></div>'}function salvarHorariosNotificacao(){let novosHorarios=[];for(let i=0;i<4;i++){let input=document.getElementById('notif-time-'+i);if(input)novosHorarios.push(input.value)}let config=loadNotifConfig();config.horarios=novosHorarios;saveNotifConfig(config);showToast('✅ Horários salvos!');}
+let notifPermission=false,notifTimers=[],NOTIF_KEY='notificacoes_config';function loadNotifConfig(){try{let saved=localStorage.getItem(NOTIF_KEY);if(saved)return JSON.parse(saved)}catch(e){}return{enabled:true,horarios:['13:50','15:50','16:50','22:10']}}function saveNotifConfig(c){localStorage.setItem(NOTIF_KEY,JSON.stringify(c))}async function solicitarPermissaoNotificacao(){if(!('Notification'in window)){showToast('❌ Não suportado');return false}if(Notification.permission==='granted'){notifPermission=true;showToast('✅ Permitido!');renderNotificacoes();agendarNotificacoes();return true}let result=await Notification.requestPermission();if(result==='granted'){notifPermission=true;agendarNotificacoes();renderNotificacoes();return true}return false}function agendarNotificacoes(){let config=loadNotifConfig();if(!config.enabled||isDayOff(now))return;let agora=new Date();config.horarios.forEach((horario,idx)=>{let[h,m]=horario.split(':').map(Number),dataNotif=new Date();dataNotif.setHours(h,m,0,0);let delay=dataNotif.getTime()-agora.getTime();if(delay>0){let timer=setTimeout(()=>{if(!isDayOff(new Date())){new Notification('⏰ Lembrete de Ponto',{body:'Não se esqueça de registrar seu ponto agora!'})}},delay);notifTimers.push(timer)}})}function renderNotificacoes(){let container=document.getElementById('notif-container');if(!container)return;let config=loadNotifConfig(),hasPermission=Notification.permission==='granted';let badge=document.getElementById('notif-status-badge');if(badge)badge.textContent=hasPermission?'🔔 ATIVO':'🔕 INATIVO';container.innerHTML='<div class="notif-horarios">'+['Entrada','Saída almoço','Volta almoço','Saída'].map((l,i)=>'<div class="notif-horario-row"><label>'+l+'</label><input type="time" id="notif-time-'+i+'" value="'+(config.horarios[i]||'14:00')+'"></div>').join('')+'</div><div style="display:flex;justify-content:space-between;margin-top:12px;gap:8px"><button class="btn-notif" onclick="solicitarPermissaoNotificacao()">Ativar/Testar</button><button class="btn-notif" onclick="salvarHorariosNotificacao()">\uD83D\uDCBE Salvar</button></div>'}function salvarHorariosNotificacao(){let novosHorarios=[];for(let i=0;i<4;i++){let input=document.getElementById('notif-time-'+i);if(input)novosHorarios.push(input.value)}let config=loadNotifConfig();config.horarios=novosHorarios;saveNotifConfig(config);showToast('✅ Horários salvos!');}
 
-// Inicializador à prova de falhas de carregamento assíncrono
 window.onload = function() {
     verificarSenhaAcesso();
 };
