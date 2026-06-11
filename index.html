@@ -11,6 +11,7 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:#0f1117;color:#e8eaf0;font-family:Arial,sans-serif;padding-bottom:100px;}
   header{background:#1a1d27;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:90;}
+  header h1{font-size:18px;font-weight:bold;}
   main{padding:18px 16px;max-width:480px;margin:0 auto;}
   .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;}
   .stat-card{background:#1a1d27;border-radius:12px;padding:12px;text-align:center;}
@@ -24,7 +25,7 @@
   .day-cell.today-cell{background:#22263a;border-width:2px;}
   .ponto-card{background:#1a1d27;border-radius:16px;padding:18px;margin-bottom:20px;}
   .ponto-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #2e3350;}
-  .btn-reg{background:#e85555;color:#fff;border:none;padding:7px 15px;border-radius:8px;cursor:pointer;font-size:20px;display:inline-flex;align-items:center;justify-content:center;}
+  .btn-reg{background:#e85555;color:#fff;border:none;padding:7px 15px;border-radius:8px;cursor:pointer;font-size:18px;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;}
   .btn-reg:disabled{background:#22263a;color:#555;cursor:not-allowed;}
   .btn-edit{background:transparent;border:1px solid #2e3350;color:#7b82a0;padding:5px 8px;border-radius:7px;cursor:pointer;margin-right:5px;}
   .btn-sm{background:#22263a;border:1px solid #2e3350;color:#7b82a0;padding:5px 11px;border-radius:8px;cursor:pointer;}
@@ -82,14 +83,33 @@
   .notif-horario-row input{background:#22263a;border:1px solid #2e3350;color:#fff;padding:8px;border-radius:8px;}
   .btn-notif{background:#22263a;border:1px solid #2e3350;color:#fff;padding:8px 16px;border-radius:10px;cursor:pointer;}
   .btn-notif.primary{background:#e85555;}
+  #lock-screen{position:fixed;inset:0;background:#0f1117;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+  .pin-dots{display:flex;gap:15px;margin:30px 0;}
+  .pin-dot{width:16px;height:16px;border-radius:50%;border:2px solid #2e3350;transition: background 0.1s;}
+  .pin-dot.filled{background:#e85555;border-color:#e85555;}
+  .pin-keyboard{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;width:100%;max-width:280px;}
+  .pin-btn{background:#1a1d27;border:1px solid #2e3350;color:#fff;font-size:24px;font-weight:bold;padding:15px;border-radius:50%;aspect-ratio:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .pin-btn:active{background:#22263a;}
 </style>
-<script>
-  if (window.navigator.standalone === false) {
-    // Código para fixar problemas de redirecionamento em standalone se necessário
-  }
-</script>
 </head>
 <body>
+
+<div id="lock-screen" style="display:none;">
+  <div style="font-size:40px; margin-bottom:10px;">🧬</div>
+  <h2 style="font-size:18px;font-weight:bold;margin-bottom:5px;">Aplicativo Bloqueado</h2>
+  <p style="font-size:12px;color:#7b82a0;">Insira seu PIN numérico</p>
+  <div class="pin-dots" id="lock-dots">
+    <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+  </div>
+  <div class="pin-keyboard">
+    <button class="pin-btn" onclick="pressPin(1)">1</button><button class="pin-btn" onclick="pressPin(2)">2</button><button class="pin-btn" onclick="pressPin(3)">3</button>
+    <button class="pin-btn" onclick="pressPin(4)">4</button><button class="pin-btn" onclick="pressPin(5)">5</button><button class="pin-btn" onclick="pressPin(6)">6</button>
+    <button class="pin-btn" onclick="pressPin(7)">7</button><button class="pin-btn" onclick="pressPin(8)">8</button><button class="pin-btn" onclick="pressPin(9)">9</button>
+    <button class="pin-btn" style="background:transparent;border:none;font-size:14px;color:#7b82a0;" onclick="clearPin()">Limpar</button><button class="pin-btn" onclick="pressPin(0)">0</button><button class="pin-btn" style="background:transparent;border:none;font-size:14px;color:#e85555;" onclick="backspacePin()">⌫</button>
+  </div>
+</div>
+
+<div id="app-content">
 <header>
   <h1 id="main-title">Carregando...</h1>
   <div class="today-badge" id="today-badge">—</div>
@@ -135,8 +155,8 @@
       <p style="font-size:12px;color:#7b82a0;margin:10px 0">Controle de sistema e dados locais</p>
       
       <div class="config-section">
-        <h3>🔒 Bloqueio por Senha</h3>
-        <button class="btn-block" id="btn-toggle-senha" onclick="configurarSenha()">Ativar Senha do Aplicativo</button>
+        <h3>🔒 Bloqueio por PIN</h3>
+        <button class="btn-block" id="btn-toggle-senha" onclick="configurarPIN()">Ativar PIN do Aplicativo</button>
       </div>
 
       <div class="config-section">
@@ -150,7 +170,7 @@
       
       <div class="danger-zone">
         <h3 style="font-size:14px;color:#e85555;margin-bottom:8px">Zona de Perigo</h3>
-        <p style="font-size:11px;color:#7b82a0;margin-bottom:12px">Isso apagará permanentemente todos os registros do aparelho.</p>
+        <p style="font-size:11px;color:#7b82a0;margin-bottom:12px">Isso apagará permanentemente todos os registros. Requer verificação do seu PIN.</p>
         <button class="btn-danger" onclick="limparTodosDados()">Limpar Banco de Dados</button>
       </div>
     </div>
@@ -164,37 +184,68 @@
   <button class="nav-btn" id="nav-historico" onclick="switchView('historico')"><span class="nav-icon">⏳</span>Histórico</button>
   <button class="nav-btn" id="nav-config" onclick="switchView('config')"><span class="nav-icon">⚙️</span>Config</button>
 </nav>
+</div>
 
 <div class="modal-overlay" id="modal-dia"><div class="modal"><h3 id="mdtitle">Editar Dia</h3><p class="modal-sub" id="mdsub"></p><br><div id="md-pontos"><div class="mrow"><label>Entrada</label><input type="time" id="md-entrada"></div><div class="mrow"><label>Intervalo</label><input type="time" id="md-almoco-saida"></div><div class="mrow"><label>Retorno</label><input type="time" id="md-almoco-volta"></div><div class="mrow"><label>Saída</label><input type="time" id="md-saida"></div></div><div class="mactions"><button class="btn-cancel" onclick="fecharModal('modal-dia')">Cancelar</button><button class="btn-save" onclick="salvarDia()">Salvar</button></div></div></div>
 <div class="modal-overlay" id="modal-hora"><div class="modal"><h3 id="mhtitle">Editar Horário</h3><div class="mrow"><label>Horário</label><input type="time" id="mh-input"></div><div class="mactions"><button class="btn-cancel" onclick="fecharModal('modal-hora')">Cancelar</button><button class="btn-save" onclick="salvarHora()">Salvar</button></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
-const DAYS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],KEY='escala_v4',DEFAULT={entrada:'14:00','almoco-saida':'16:00','almoco-volta':'17:00',saida:'22:20'},LABELS={entrada:'Entrada','almoco-saida':'Intervalo','almoco-volta':'Retorno',saida:'Saída'};
+const DAYS_FULL=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'],DAYS=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],KEY='escala_v4',DEFAULT={entrada:'14:00','almoco-saida':'16:00','almoco-volta':'17:00',saida:'22:20'},LABELS={entrada:'Entrada','almoco-saida':'Intervalo','almoco-volta':'Retorno',saida:'Saída'};
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{return{}}}function save(){localStorage.setItem(KEY,JSON.stringify(data))}let data=load(),now=new Date(),todayKey=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');function dk(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}function isDayOff(d){return!!(data[dk(d)]&&data[dk(d)].folga)}
+
+let currentPinInput = "";
+function verificarSenhaAcesso(){
+    let pinSalvo = localStorage.getItem('app_pin');
+    if(pinSalvo){
+        document.getElementById('app-content').style.display = 'none';
+        document.getElementById('lock-screen').style.display = 'flex';
+        currentPinInput = "";
+        updatePinDots();
+    } else {
+        document.getElementById('app-content').style.display = 'block';
+        document.getElementById('lock-screen').style.display = 'none';
+        runApp();
+    }
+}
+
+function pressPin(num) {
+    if(currentPinInput.length < 4) {
+        currentPinInput += num;
+        updatePinDots();
+    }
+    if(currentPinInput.length === 4) {
+        setTimeout(() => {
+            let pinSalvo = localStorage.getItem('app_pin');
+            if(currentPinInput === pinSalvo) {
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+                runApp();
+            } else {
+                showToast("❌ PIN Incorreto!");
+                clearPin();
+            }
+        }, 150);
+    }
+}
+function clearPin() { currentPinInput = ""; updatePinDots(); }
+function backspacePin() { currentPinInput = currentPinInput.slice(0, -1); updatePinDots(); }
+function updatePinDots() {
+    let dots = document.querySelectorAll('#lock-dots .pin-dot');
+    dots.forEach((dot, idx) => {
+        if(idx < currentPinInput.length) dot.classList.add('filled');
+        else dot.classList.remove('filled');
+    });
+}
 
 function updateTitle() {
     let dayNum = now.getDate();
-    let dayName = DAYS[now.getDay()];
+    let dayNameFull = DAYS_FULL[now.getDay()];
     let monthName = MONTHS[now.getMonth()];
-    document.getElementById('main-title').textContent = dayName + ", " + dayNum + " de " + monthName;
+    document.getElementById('main-title').textContent = dayNameFull + ", " + dayNum + " de " + monthName;
 }
 
-function verificarSenhaAcesso(){
-    let senhaSalva = localStorage.getItem('app_password');
-    if(senhaSalva){
-        let tent = prompt("Digite a senha para abrir o aplicativo:");
-        if(tent !== senhaSalva){
-            alert("Senha incorreta!");
-            document.body.innerHTML = "<div style='padding:40px; text-align:center; color:#e85555;'><h2>Acesso Bloqueado</h2><br><button onclick='window.location.reload()' style='padding:10px; background:#22263a; border:none; color:#fff; border-radius:5px;'>Tentar Novamente</button></div>";
-            return false;
-        }
-    }
-    return true;
-}
-
-function init(){
-    if(!verificarSenhaAcesso()) return;
+function runApp(){
     updateTitle();
     document.getElementById('today-badge').textContent=isDayOff(now)?'🌿 Folga':'💼 Trabalho';
     atualizarBotaoSenhaVisual();
@@ -214,11 +265,9 @@ function renderPonto(){
     let tipos=['entrada','almoco-saida','almoco-volta','saida'],html='';
     tipos.forEach((t,i)=>{
         let val=rec[t],deps=[true,!!rec.entrada,!!rec['almoco-saida'],!!rec['almoco-volta']];
-        html+='<div class="ponto-row"><div><strong>'+LABELS[t]+'</strong><br><small>'+DEFAULT[t]+'</small></div><div style="display:flex;align-items:center;"><span style="margin-right:15px;font-weight:bold;">'+(val||'--:--')+'</span><button class="btn-edit" onclick="abrirModalHora(\''+t+'\')">✏️</button>'+(val?'':'<button class="btn-reg" '+(deps[i]?'':'disabled')+' onclick="baterPonto(\''+t+'\')">🫆</button>')+'</div></div>';
+        html+='<div class="ponto-row"><div><strong>'+LABELS[t]+'</strong><br><small>'+DEFAULT[t]+'</small></div><div style="display:flex;align-items:center;"><span style="margin-right:15px;font-weight:bold;">'+(val||'--:--')+'</span><button class="btn-edit" onclick="abrirModalHora(\''+t+'\')">✏️</button>'+(val?'':'<button class="btn-reg" '+(deps[i]?'':'disabled')+' onclick="baterPonto(\''+t+'\')">🧬</button>')+'</div></div>';
     });
     b.innerHTML=html;
-    
-    // Processamento e Renderização do Resumo Diário
     if(rec.entrada&&rec.saida){
         let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]);
         document.getElementById('resumo-card').style.display='block';
@@ -238,7 +287,7 @@ function baterPonto(t){let h=new Date().toTimeString().slice(0,5);data[todayKey]
 let _ht=null;function abrirModalHora(t){_ht=t;let val=(data[todayKey]||{})[t]||DEFAULT[t];document.getElementById('mhtitle').textContent='Editar - '+LABELS[t];document.getElementById('mh-input').value=val;abrirModal('modal-hora')}
 function salvarHora(){let v=document.getElementById('mh-input').value;if(!v){showToast('Informe o horário');return}data[todayKey]=data[todayKey]||{};data[todayKey][_ht]=v;save();renderPonto();renderStats();renderWeek();renderBancoHoras();fecharModal('modal-hora');showToast('✅ Salvo: '+v)}
 
-let _ek=null;function abrirModalDia(k){_ek=k;let date=new Date(k+'T12:00:00'),rec=data[k]||{};document.getElementById('mdtitle').textContent=date.getDate()+' de '+MONTHS[date.getMonth()];document.getElementById('mdsub').textContent=DAYS[date.getDay()];document.getElementById('md-entrada').value=rec.entrada||DEFAULT.entrada;document.getElementById('md-almoco-saida').value=rec['almoco-saida']||DEFAULT['almoco-saida'];document.getElementById('md-almoco-volta').value=rec['almoco-volta']||DEFAULT['almoco-volta'];document.getElementById('md-saida').value=rec.saida||DEFAULT.saida;abrirModal('modal-dia')}
+let _ek=null;function abrirModalDia(k){_ek=k;let date=new Date(k+'T12:00:00'),rec=data[k]||{};document.getElementById('mdtitle').textContent=date.getDate()+' de '+MONTHS[date.getMonth()];document.getElementById('mdsub').textContent=DAYS_FULL[date.getDay()];document.getElementById('md-entrada').value=rec.entrada||DEFAULT.entrada;document.getElementById('md-almoco-saida').value=rec['almoco-saida']||DEFAULT['almoco-saida'];document.getElementById('md-almoco-volta').value=rec['almoco-volta']||DEFAULT['almoco-volta'];document.getElementById('md-saida').value=rec.saida||DEFAULT.saida;abrirModal('modal-dia')}
 function salvarDia(){if(!data[_ek])data[_ek]={};let e=document.getElementById('md-entrada').value,as=document.getElementById('md-almoco-saida').value,av=document.getElementById('md-almoco-volta').value,s=document.getElementById('md-saida').value;if(e)data[_ek].entrada=e;else delete data[_ek].entrada;if(as)data[_ek]['almoco-saida']=as;else delete data[_ek]['almoco-saida'];if(av)data[_ek]['almoco-volta']=av;else delete data[_ek]['almoco-volta'];if(s)data[_ek].saida=s;else delete data[_ek].saida;delete data[_ek].folga;if(Object.keys(data[_ek]).length===0)delete data[_ek];save();renderWeek();renderStats();renderBancoHoras();if(_ek===todayKey)renderPonto();fecharModal('modal-dia');showToast('✅ Dia atualizado!')}
 
 function renderFolgas(){let y=now.getFullYear(),m=now.getMonth();document.getElementById('folgas-mes-nome').textContent=MONTHS[m];let grid=document.getElementById('month-grid'),first=new Date(y,m,1).getDay();grid.innerHTML='';for(let i=0;i<first;i++){let e=document.createElement('div');e.className='mcell empty';grid.appendChild(e)}let dias=new Date(y,m+1,0).getDate();for(let d=1;d<=dias;d++){let date=new Date(y,m,d),k=dk(date),isOff=!!(data[k]&&data[k].folga),cell=document.createElement('div');cell.className='mcell'+(isOff?' off':'');cell.innerHTML='<div class="mdn">'+DAYS[date.getDay()]+'</div><div class="mdd">'+d+'</div>';cell.onclick=()=>toggleFolga(k,cell);grid.appendChild(cell)}}
@@ -246,14 +295,14 @@ function toggleFolga(k,cell){if(!data[k])data[k]={};if(data[k].folga){delete dat
 
 function renderStats(){let y=now.getFullYear(),m=now.getMonth(),dias=0,folgas=0,min=0,total=new Date(y,m+1,0).getDate();for(let d=1;d<=total;d++){let date=new Date(y,m,d);if(date>now)continue;let k=dk(date),rec=data[k]||{};if(rec.folga){folgas++;continue}if(rec.entrada&&rec.saida){dias++;let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}min+=mt-mi}}document.getElementById('stat-dias').textContent=dias;document.getElementById('stat-folgas').textContent=folgas;document.getElementById('stat-horas').textContent=Math.floor(min/60)+'h';renderGrafico()}
 
-function renderBancoHoras(){let totalMinutos=parseInt(localStorage.getItem('banco_horas_base'))||0,y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate();for(let d=1;d<=total;d++){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{};if(!rec.folga&&rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}let efetivo=mt-mi,saldoDia=efetivo-440;totalMinutos+=saldoDia;}}let sinal=totalMinutos>=0?'':'-',absMin=Math.abs(totalMinutos);document.getElementById('banco-horas-valor').textContent=sinal+Math.floor(absMin/60)+'h '+String(absMin%60).padStart(2,'0')+'m';document.getElementById('banco-horas-valor').style.color=totalMinutos>=0?'#38d9a9':'#e85555';}
-function ajustarBancoHoras(){let atual=parseInt(localStorage.getItem('banco_horas_base'))||0,novo=prompt("Defina o saldo base inicial do Banco de Horas (em minutos):",atual);if(novo!==null){localStorage.setItem('banco_horas_base',parseInt(novo)||0);renderBancoHoras();showToast("Banco atualizado!");}}
+function renderBancoHoras(){let totalMinutos=parseInt(localStorage.getItem('banco_horas_base'))||0,y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate();for(let d=1;d<=total;d++){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{};if(!rec.folga&&rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}let positivo=mt-mi,saldoDia=positivo-440;totalMinutos+=saldoDia;}}let sinal=totalMinutos>=0?'':'-',absMin=Math.abs(totalMinutos);document.getElementById('banco-horas-valor').textContent=sinal+Math.floor(absMin/60)+'h '+String(absMin%60).padStart(2,'0')+'m';document.getElementById('banco-horas-valor').style.color=totalMinutos>=0?'#38d9a9':'#e85555';}
+function ajustarBancoHoras(){let atual=parseInt(localStorage.getItem('banco_horas_base'))||0,novo=prompt("Defina o saldo base do Banco de Horas (em minutos):",atual);if(novo!==null){localStorage.setItem('banco_horas_base',parseInt(novo)||0);renderBancoHoras();showToast("Banco de horas atualizado!");}}
 
-function configurarSenha(){let atual=localStorage.getItem('app_password');if(atual){if(confirm("Deseja remover a senha de proteção de acesso?")){localStorage.removeItem('app_password');showToast("🔒 Senha removida");atualizarBotaoSenhaVisual();}}else{let nova=prompt("Defina uma senha de acesso numérica ou de texto:");if(nova){localStorage.setItem('app_password',nova);showToast("🔒 Senha ativada!");atualizarBotaoSenhaVisual();}}}
-function atualizarBotaoSenhaVisual(){let btn=document.getElementById('btn-toggle-senha');if(!btn)return;let atual=localStorage.getItem('app_password');btn.textContent=atual?"Desativar Senha Interna":"Ativar Senha do Aplicativo";btn.style.background=atual?"#e85555":"#22263a";}
+function configurarPIN(){let atual=localStorage.getItem('app_pin');if(atual){if(confirm("Deseja remover o bloqueio por PIN?")){localStorage.removeItem('app_pin');showToast("🔒 PIN removido");atualizarBotaoSenhaVisual();}}else{let nova=prompt("Configure um PIN de acesso numérico (Apenas números):");if(nova){if(/^\d+$/.test(nova)){localStorage.setItem('app_pin',nova);showToast("🔒 PIN Ativado!");atualizarBotaoSenhaVisual();}else{alert("Erro: O PIN deve conter apenas números!");}}}}
+function atualizarBotaoSenhaVisual(){let btn=document.getElementById('btn-toggle-senha');if(!btn)return;let atual=localStorage.getItem('app_pin');btn.textContent=atual?"Desativar Bloqueio por PIN":"Ativar PIN do Aplicativo";btn.style.background=atual?"#e85555":"#22263a";}
 
 function exportarBackupJSON(){let dataStr="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(data)),dlAnchor=document.createElement('a');dlAnchor.setAttribute("href",dataStr);dlAnchor.setAttribute("download","backup_escala_eliezer.json");document.body.appendChild(dlAnchor);dlAnchor.click();dlAnchor.remove();showToast("📦 Backup exportado!");}
-function importarBackupJSON(input){let file=input.files[0];if(!file)return;let reader=new FileReader();reader.onload=function(e){try{let parsed=JSON.parse(e.target.result);if(typeof parsed==='object'){data=parsed;save();init();showToast("✅ Backup restaurado com sucesso!");}}catch(err){alert("Arquivo inválido");}};reader.readAsText(file);}
+function importarBackupJSON(input){let file=input.files[0];if(!file)return;let reader=new FileReader();reader.onload=function(e){try{let parsed=JSON.parse(e.target.result);if(typeof parsed==='object'){data=parsed;save();runApp();showToast("✅ Backup restaurado com sucesso!");}}catch(err){alert("Arquivo inválido");}};reader.readAsText(file);}
 
 function exportarCSV(){let csv="Data,Entrada,Intervalo Saída,Intervalo Retorno,Saída,Folga\n",y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate();for(let d=1;d<=total;d++){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{};csv+=`${k},${rec.entrada||''},${rec['almoco-saida']||''},${rec['almoco-volta']||''},${rec.saida||''},${rec.folga?'Sim':'Não'}\n`;}let blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`relatorio_escala_${m+1}_${y}.csv`;a.click();showToast("📊 CSV Gerado!");}
 function exportarPDFHTML(){let y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate(),w=window.open();w.document.write(`<html><head><title>Relatório Escala</title><style>body{font-family:sans-serif;padding:20px;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ccc;padding:8px;text-align:center;}th{background:#f2f2f2;}</style></head><body><h2>Relatório Mensal - ${MONTHS[m]} de ${y}</h2><table><tr><th>Data</th><th>Entrada</th><th>Int. Saída</th><th>Int. Retorno</th><th>Saída</th><th>Status</th></tr>`);for(let d=1;d<=total;d++){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{};w.document.write(`<tr><td>${d}/${m+1}</td><td>${rec.entrada||'--'}</td><td>${rec['almoco-saida']||'--'}</td><td>${rec['almoco-volta']||'--'}</td><td>${rec.saida||'--'}</td><td>${rec.folga?'Folga':'Trabalho'}</td></tr>`);}w.document.write(`</table></body></html>`);w.document.close();w.print();showToast("🖨️ Janela de Impressão Aberta");}
@@ -273,10 +322,33 @@ function switchView(v){
     if(v==='escala')renderEscala();
     if(v==='hoje'){renderGrafico();renderNotificacoes();renderBancoHoras();}
 }
-function limparTodosDados(){if(confirm("Deseja redefinir completamente o aplicativo?")){localStorage.clear();data={};init();switchView('hoje');showToast('🗑️ Dados limpos!');}}
+
+function limparTodosDados(){
+    let pinSalvo = localStorage.getItem('app_pin');
+    if(pinSalvo) {
+        let confPin = prompt("⚠️ Para deletar tudo, insira seu PIN de segurança:");
+        if(confPin !== pinSalvo) {
+            alert("❌ PIN inválido! Operação abortada.");
+            return;
+        }
+    }
+    if(confirm("Deseja redefinir completamente o aplicativo e apagar todos os registros locais?")){
+        localStorage.clear();
+        data={};
+        runApp();
+        switchView('hoje');
+        showToast('🗑️ Dados limpos!');
+    }
+}
+
 function showToast(m){let t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
 
-let notifPermission=false,notifTimers=[],NOTIF_KEY='notificacoes_config';function loadNotifConfig(){try{let saved=localStorage.getItem(NOTIF_KEY);if(saved)return JSON.parse(saved)}catch(e){}return{enabled:true,horarios:['13:50','15:50','16:50','22:10']}}function saveNotifConfig(c){localStorage.setItem(NOTIF_KEY,JSON.stringify(c))}async function solicitarPermissaoNotificacao(){if(!('Notification'in window)){showToast('❌ Não suportado');return false}if(Notification.permission==='granted'){notifPermission=true;showToast('✅ Permitido!');renderNotificacoes();agendarNotificacoes();return true}let result=await Notification.requestPermission();if(result==='granted'){notifPermission=true;agendarNotificacoes();renderNotificacoes();return true}return false}function agendarNotificacoes(){let config=loadNotifConfig();if(!config.enabled||isDayOff(now))return;let tipos=['entrada','almoco-saida','almoco-volta','saida'],agora=new Date();config.horarios.forEach((horario,idx)=>{let[h,m]=horario.split(':').map(Number),dataNotif=new Date();dataNotif.setHours(h,m,0,0);let delay=dataNotif.getTime()-agora.getTime();if(delay>0){let timer=setTimeout(()=>{if(!isDayOff(new Date())){new Notification('⏰ Lembrete de Ponto',{body:'Não se esqueça de registrar seu ponto agora!'})}},delay);notifTimers.push(timer)}})}function renderNotificacoes(){let container=document.getElementById('notif-container');if(!container)return;let config=loadNotifConfig(),hasPermission=Notification.permission==='granted';let badge=document.getElementById('notif-status-badge');if(badge)badge.textContent=hasPermission?'🔔 ATIVO':'🔕 INATIVO';container.innerHTML='<div class="notif-horarios">'+['Entrada','Saída almoço','Volta almoço','Saída'].map((l,i)=>'<div class="notif-horario-row"><label>'+l+'</label><input type="time" id="notif-time-'+i+'" value="'+(config.horarios[i]||'14:00')+'"></div>').join('')+'</div><div style="display:flex;justify-content:space-between;margin-top:12px;gap:8px"><button class="btn-notif" onclick="solicitarPermissaoNotificacao()">Ativar/Testar</button><button class="btn-notif" onclick="salvarHorariosNotificacao()">💾 Salvar</button></div>'}function salvarHorariosNotificacao(){let novosHorarios=[];for(let i=0;i<4;i++){let input=document.getElementById('notif-time-'+i);if(input)novosHorarios.push(input.value)}let config=loadNotifConfig();config.horarios=novosHorarios;saveNotifConfig(config);showToast('✅ Horários salvos!');}init();
+let notifPermission=false,notifTimers=[],NOTIF_KEY='notificacoes_config';function loadNotifConfig(){try{let saved=localStorage.getItem(NOTIF_KEY);if(saved)return JSON.parse(saved)}catch(e){}return{enabled:true,horarios:['13:50','15:50','16:50','22:10']}}function saveNotifConfig(c){localStorage.setItem(NOTIF_KEY,JSON.stringify(c))}async function solicitarPermissaoNotificacao(){if(!('Notification'in window)){showToast('❌ Não suportado');return false}if(Notification.permission==='granted'){notifPermission=true;showToast('✅ Permitido!');renderNotificacoes();agendarNotificacoes();return true}let result=await Notification.requestPermission();if(result==='granted'){notifPermission=true;agendarNotificacoes();renderNotificacoes();return true}return false}function agendarNotificacoes(){let config=loadNotifConfig();if(!config.enabled||isDayOff(now))return;let tipos=['entrada','almoco-saida','almoco-volta','saida'],agora=new Date();config.horarios.forEach((horario,idx)=>{let[h,m]=horario.split(':').map(Number),dataNotif=new Date();dataNotif.setHours(h,m,0,0);let delay=dataNotif.getTime()-agora.getTime();if(delay>0){let timer=setTimeout(()=>{if(!isDayOff(new Date())){new Notification('⏰ Lembrete de Ponto',{body:'Não se esqueça de registrar seu ponto agora!'})}},delay);notifTimers.push(timer)}})}function renderNotificacoes(){let container=document.getElementById('notif-container');if(!container)return;let config=loadNotifConfig(),hasPermission=Notification.permission==='granted';let badge=document.getElementById('notif-status-badge');if(badge)badge.textContent=hasPermission?'🔔 ATIVO':'🔕 INATIVO';container.innerHTML='<div class="notif-horarios">'+['Entrada','Saída almoço','Volta almoço','Saída'].map((l,i)=>'<div class="notif-horario-row"><label>'+l+'</label><input type="time" id="notif-time-'+i+'" value="'+(config.horarios[i]||'14:00')+'"></div>').join('')+'</div><div style="display:flex;justify-content:space-between;margin-top:12px;gap:8px"><button class="btn-notif" onclick="solicitarPermissaoNotificacao()">Ativar/Testar</button><button class="btn-notif" onclick="salvarHorariosNotificacao()">💾 Salvar</button></div>'}function salvarHorariosNotificacao(){let novosHorarios=[];for(let i=0;i<4;i++){let input=document.getElementById('notif-time-'+i);if(input)novosHorarios.push(input.value)}let config=loadNotifConfig();config.horarios=novosHorarios;saveNotifConfig(config);showToast('✅ Horários salvos!');}
+
+// Inicialização segura isolada das travas do navegador
+window.addEventListener('DOMContentLoaded', () => {
+    verificarSenhaAcesso();
+});
 </script>
 </body>
 </html>
