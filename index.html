@@ -23,10 +23,10 @@
   .day-cell.off-day{border-color:#38d9a9;}
   .ponto-card{background:#1a1d27;border-radius:16px;padding:18px;margin-bottom:20px;}
   .ponto-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #2e3350;}
-  .btn-reg{background:#e85555;color:#fff;border:none;padding:7px 15px;border-radius:8px;cursor:pointer;font-size:18px;display:inline-flex;align-items:center;justify-content:center;transition:background 0.1s;}
+  .btn-reg{background:#e85555;color:#fff;border:none;padding:7px 15px;border-radius:8px;cursor:pointer;font-size:20px;display:inline-flex;align-items:center;justify-content:center;transition:background 0.1s;}
   .btn-reg:active{background:#ff6b6b;}
   .btn-reg:disabled{background:#22263a;color:#555;cursor:not-allowed;}
-  .btn-edit{background:transparent;border:1px solid #2e3350;color:#7b82a0;padding:5px 8px;border-radius:7px;cursor:pointer;margin-right:5px;}
+  .btn-edit{background:transparent;border:1px solid #2e3350;color:#7b82a0;padding:5px 8px;border-radius:77px;cursor:pointer;margin-right:5px;}
   .btn-sm{background:#22263a;border:1px solid #2e3350;color:#7b82a0;padding:5px 11px;border-radius:8px;cursor:pointer;}
   .grafico-card{background:#1a1d27;border-radius:16px;padding:18px;margin-bottom:20px;}
   .grafico-card h2{font-size:13px;margin-bottom:14px;color:#7b82a0;}
@@ -64,12 +64,16 @@
   .eday-status{font-size:13px;font-weight:700;}
   .eday-horas{font-size:13px;font-weight:700;color:#e85555;}
   
-  /* Menu Inferior visível e com ícones + texto explícitos */
+  /* Menu Inferior Estilizado */
   nav{position:fixed;bottom:0;left:0;right:0;background:#1a1d27;display:flex;padding:12px 0 calc(12px + env(safe-area-inset-bottom));border-top:1px solid #2e3350;z-index:99;}
   .nav-btn{flex:1;background:none;border:none;color:#7b82a0;font-size:11px;cursor:pointer;font-weight:bold;display:flex;flex-direction:column;align-items:center;gap:4px;}
   .nav-btn.active{color:#e85555;}
   .nav-icon{font-size:18px;}
   
+  /* Config Card Extra Interno */
+  .danger-zone{border:1px solid #e85555;padding:15px;border-radius:12px;margin-top:20px;}
+  .btn-danger{background:#e85555;color:#white;border:none;padding:10px;border-radius:8px;cursor:pointer;width:100%;font-weight:bold;}
+
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s;}
   .modal-overlay.open{opacity:1;pointer-events:all;}
   .modal{background:#1a1d27;border-radius:20px 20px 0 0;padding:22px 20px 40px;width:100%;max-width:480px;transform:translateY(40px);transition:transform 0.25s;}
@@ -100,9 +104,25 @@
     <div class="grafico-card"><h2>📊 Evolução Semanal</h2><div id="grafico-container"></div></div>
     <div class="notif-card"><div class="notif-header"><h2>🔔 Lembretes</h2><span class="notif-badge" id="notif-status-badge">🔕</span></div><div id="notif-container"></div></div>
   </div>
+  
   <div class="view" id="view-folgas"><div class="config-card" style="background:#1a1d27;border-radius:16px;padding:18px"><h2>🌿 Folgas de <span id="folgas-mes-nome"></span></h2><p style="font-size:12px;color:#7b82a0;margin:10px 0">Toque para marcar/desmarcar</p><div class="month-grid" id="month-grid"></div></div></div>
+  
   <div class="view" id="view-escala"><div class="escala-header" style="margin-bottom:10px;"><span id="escala-mes-nome"></span></div><div id="escala-list"></div></div>
+  
   <div class="view" id="view-historico"><div class="hist-card"><h2>📅 Histórico — <span id="hist-mes-nome"></span></h2><div id="hist-list"></div></div></div>
+
+  <div class="view" id="view-config">
+    <div class="config-card" style="background:#1a1d27;border-radius:16px;padding:18px">
+      <h2>⚙️ Configurações do Aplicativo</h2>
+      <p style="font-size:12px;color:#7b82a0;margin:10px 0">Gerenciamento de dados locais</p>
+      
+      <div class="danger-zone">
+        <h3 style="font-size:14px;color:#e85555;margin-bottom:8px">Zona de Perigo</h3>
+        <p style="font-size:11px;color:#7b82a0;margin-bottom:12px">Isso apagará permanentemente todos os pontos batidos e folgas salvas neste aparelho.</p>
+        <button class="btn-danger" onclick="limparTodosDados()">Limpar Banco de Dados</button>
+      </div>
+    </div>
+  </div>
 </main>
 
 <nav>
@@ -110,6 +130,7 @@
   <button class="nav-btn" id="nav-folgas" onclick="switchView('folgas')"><span class="nav-icon">🌿</span>Folgas</button>
   <button class="nav-btn" id="nav-escala" onclick="switchView('escala')"><span class="nav-icon">📅</span>Escala</button>
   <button class="nav-btn" id="nav-historico" onclick="switchView('historico')"><span class="nav-icon">⏳</span>Histórico</button>
+  <button class="nav-btn" id="nav-config" onclick="switchView('config')"><span class="nav-icon">⚙️</span>Config</button>
 </nav>
 
 <div class="modal-overlay" id="modal-dia"><div class="modal"><h3 id="mdtitle">Editar Dia</h3><p class="modal-sub" id="mdsub"></p><br><div id="md-pontos"><div class="mrow"><label>Entrada</label><input type="time" id="md-entrada"></div><div class="mrow"><label>Intervalo</label><input type="time" id="md-almoco-saida"></div><div class="mrow"><label>Retorno</label><input type="time" id="md-almoco-volta"></div><div class="mrow"><label>Saída</label><input type="time" id="md-saida"></div></div><div class="mactions"><button class="btn-cancel" onclick="fecharModal('modal-dia')">Cancelar</button><button class="btn-save" onclick="salvarDia()">Salvar</button></div></div></div>
@@ -145,8 +166,8 @@ function renderPonto(){
     let tipos=['entrada','almoco-saida','almoco-volta','saida'],html='';
     tipos.forEach((t,i)=>{
         let val=rec[t],deps=[true,!!rec.entrada,!!rec['almoco-saida'],!!rec['almoco-volta']];
-        /* Linha corrigida para exibir o ícone de impressão digital 👆 */
-        html+='<div class="ponto-row"><div><strong>'+LABELS[t]+'</strong><br><small>'+DEFAULT[t]+'</small></div><div style="display:flex;align-items:center;"><span style="margin-right:15px;font-weight:bold;">'+(val||'--:--')+'</span><button class="btn-edit" onclick="abrirModalHora(\''+t+'\')">✏️</button>'+(val?'':'<button class="btn-reg" '+(deps[i]?'':'disabled')+' onclick="baterPonto(\''+t+'\')">👆</button>')+'</div></div>';
+        /* Alterado com sucesso para o ícone 🫆 */
+        html+='<div class="ponto-row"><div><strong>'+LABELS[t]+'</strong><br><small>'+DEFAULT[t]+'</small></div><div style="display:flex;align-items:center;"><span style="margin-right:15px;font-weight:bold;">'+(val||'--:--')+'</span><button class="btn-edit" onclick="abrirModalHora(\''+t+'\')">✏️</button>'+(val?'':'<button class="btn-reg" '+(deps[i]?'':'disabled')+' onclick="baterPonto(\''+t+'\')">🫆</button>')+'</div></div>';
     });
     b.innerHTML=html;
     if(rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]);document.getElementById('resumo-card').style.display='block';document.getElementById('horas-big').textContent=Math.floor(mt/60)+'h '+String(mt%60).padStart(2,'0')+'m';let mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}document.getElementById('res-ef').innerHTML='<strong>Horas efetivas: '+Math.floor((mt-mi)/60)+'h '+String((mt-mi)%60).padStart(2,'0')+'m</strong>'}else{document.getElementById('resumo-card').style.display='none'}
@@ -163,6 +184,16 @@ function switchView(v){
     if(v==='folgas')renderFolgas();
     if(v==='escala')renderEscala();
     if(v==='hoje'){renderGrafico();renderNotificacoes()}
+}
+
+function limparTodosDados(){
+    if(confirm("Tem certeza que deseja apagar TODOS os seus registros de ponto e folgas de forma irreversível?")){
+        localStorage.removeItem(KEY);
+        data={};
+        init();
+        switchView('hoje');
+        showToast('🗑️ Banco de dados limpo!');
+    }
 }
 
 function showToast(m){let t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}let notifPermission=false,notifTimers=[],NOTIF_KEY='notificacoes_config';function loadNotifConfig(){try{let saved=localStorage.getItem(NOTIF_KEY);if(saved)return JSON.parse(saved)}catch(e){}return{enabled:true,horarios:['13:50','15:50','16:50','22:10']}}function saveNotifConfig(c){localStorage.setItem(NOTIF_KEY,JSON.stringify(c))}async function solicitarPermissaoNotificacao(){if(!('Notification'in window)){showToast('❌ Navegador não suporta notificações');return false}if(Notification.permission==='granted'){notifPermission=true;showToast('✅ Notificações permitidas!');renderNotificacoes();agendarNotificacoes();return true}if(Notification.permission!=='denied'){let result=await Notification.requestPermission();if(result==='granted'){notifPermission=true;showToast('🔔 Notificações ativadas!');renderNotificacoes();agendarNotificacoes();return true}else{showToast('⚠️ Permissão negada');renderNotificacoes();return false}}return false}function enviarNotificacao(titulo,corpo,tipo){if(!notifPermission&&Notification.permission==='granted')notifPermission=true;if(!notifPermission)return;if(isDayOff(now))return;let rec=data[todayKey]||{},jaRegistrado=false;if(tipo==='entrada'&&rec.entrada)jaRegistrado=true;if(tipo==='almoco-saida'&&rec['almoco-saida'])jaRegistrado=true;if(tipo==='almoco-volta'&&rec['almoco-volta'])jaRegistrado=true;if(tipo==='saida'&&rec.saida)jaRegistrado=true;if(jaRegistrado)return;new Notification(titulo,{body:corpo,icon:'https://cdn-icons-png.flaticon.com/512/2838/2838912.png',silent:false})}function cancelarNotificacoesHoje(){notifTimers.forEach(t=>clearTimeout(t));notifTimers=[]}function agendarNotificacoes(){cancelarNotificacoesHoje();let config=loadNotifConfig();if(!config.enabled)return;if(!notifPermission&&Notification.permission!=='granted')return;if(isDayOff(now))return;let tipos=['entrada','almoco-saida','almoco-volta','saida'],titulos={entrada:'⏰ Hora da Entrada!','almoco-saida':'🍽️ Hora do Almoço!','almoco-volta':'🔙 Volta do Almoço!',saida:'🏠 Hora de Sair!'},corpos={entrada:'👉 Registre sua entrada','almoco-saida':'👉 Registre saída para almoço','almoco-volta':'👉 Registre retorno do almoço',saida:'👉 Registre sua saída'},agora=new Date();config.horarios.forEach((horario,idx)=>{let[h,m]=horario.split(':').map(Number),dataNotif=new Date();dataNotif.setHours(h,m,0,0);let delay=dataNotif.getTime()-agora.getTime();if(delay<0&&idx===0){dataNotif.setDate(dataNotif.getDate()+1);delay=dataNotif.getTime()-agora.getTime()}if(delay>0&&delay<24*60*60*1000){let timer=setTimeout(()=>{enviarNotificacao(titulos[tipos[idx]],corpos[tipos[idx]],tipos[idx])},delay);notifTimers.push(timer)}})}function renderNotificacoes(){let container=document.getElementById('notif-container');if(!container)return;let config=loadNotifConfig(),hasPermission=Notification.permission==='granted';notifPermission=hasPermission;let badge=document.getElementById('notif-status-badge');if(badge){badge.textContent=hasPermission?'🔔 ATIVO':'🔕 INATIVO';badge.style.background=hasPermission?'#38d9a9':'#22263a'}container.innerHTML='<div class="notif-horarios">'+['Entrada','Saída almoço','Volta almoço','Saída'].map((l,i)=>'<div class="notif-horario-row"><label>'+l+'</label><input type="time" id="notif-time-'+i+'" value="'+(config.horarios[i]||'14:00')+'" '+(hasPermission?'':'disabled')+'></div>').join('')+'</div><div class="notif-status" style="display:flex;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:8px"><span>'+(hasPermission?'✅ Notificações permitidas':'⚠️ Permissão necessária')+'</span><button class="btn-notif '+(hasPermission?'':'primary')+'" onclick="solicitarPermissaoNotificacao()">'+(hasPermission?'🔔 Testar':'🔔 Ativar')+'</button><button class="btn-notif" onclick="salvarHorariosNotificacao()">💾 Salvar</button></div>'}function salvarHorariosNotificacao(){let novosHorarios=[];for(let i=0;i<4;i++){let input=document.getElementById('notif-time-'+i);if(input&&input.value)novosHorarios.push(input.value)}if(novosHorarios.length===4){let config=loadNotifConfig();config.horarios=novosHorarios;saveNotifConfig(config);showToast('✅ Horários salvos!');agendarNotificacoes()}else{showToast('⚠️ Preencha todos os horários')}}if('Notification'in window&&Notification.permission==='granted'){notifPermission=true;agendarNotificacoes()}window.solicitarPermissaoNotificacao=solicitarPermissaoNotificacao;window.salvarHorariosNotificacao=salvarHorariosNotificacao;init();
