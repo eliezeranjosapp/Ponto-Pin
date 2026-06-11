@@ -1,0 +1,18 @@
+{
+  "name": "Escala Eliezer",
+  "short_name": "Escala Tarde",
+  "description": "Controle de Escala de Trabalho e Registro de Ponto",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme-color": "#1a1d27",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2838/2838912.png",
+      "sizes": "512xl512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
