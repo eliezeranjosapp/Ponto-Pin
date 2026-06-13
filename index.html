@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -39,7 +40,7 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; transition: background-color 0.2s, border-color 0.2s; }
-  body { background: var(--bg-main); color: var(--text-main); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding-bottom: 120px; overflow-x: hidden; }
+  body { background: var(--bg-main); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding-bottom: 120px; overflow-x: hidden; }
   
   header { background: var(--bg-header); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 90; border-bottom: 1px solid var(--border); }
   header h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
@@ -98,7 +99,6 @@
   .btn-block { width: 100%; display: block; padding: 12px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); border-radius: 10px; cursor: pointer; margin-bottom: 8px; font-weight: bold; text-align: center; text-decoration: none; font-size: 13px; }
   .btn-danger { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold; font-size: 13px; }
   
-  /* Gráfico Corrigido para não sobrepor textos */
   .bars-container { display: flex; align-items: flex-end; gap: 8px; height: 120px; padding-top: 25px; position: relative; }
   .bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; z-index: 5; }
   .bar-container-relative { width: 100%; height: 80px; position: relative; display: flex; align-items: flex-end; }
@@ -171,10 +171,10 @@
 </head>
 <body>
 
-<div id="ptr-indicator"> Atualizando dados...</div>
+<div id="ptr-indicator">&#x2728; Atualizando dados...</div>
 
 <div id="lock-screen" style="display:none;">
-  <div style="font-size:40px; margin-bottom:10px;"></div>
+  <div style="font-size:40px; margin-bottom:10px;">&#x1F512;</div>
   <h2 style="font-size:18px;font-weight:bold;margin-bottom:4px;">Aplicativo Bloqueado</h2>
   <p style="font-size:12px;color:var(--text-muted);">Insira seu PIN numérico</p>
   <div class="pin-dots" id="lock-dots">
@@ -184,12 +184,12 @@
     <button class="pin-btn" onclick="pressPin(1)">1</button><button class="pin-btn" onclick="pressPin(2)">2</button><button class="pin-btn" onclick="pressPin(3)">3</button>
     <button class="pin-btn" onclick="pressPin(4)">4</button><button class="pin-btn" onclick="pressPin(5)">5</button><button class="pin-btn" onclick="pressPin(6)">6</button>
     <button class="pin-btn" onclick="pressPin(7)">7</button><button class="pin-btn" onclick="pressPin(8)">8</button><button class="pin-btn" onclick="pressPin(9)">9</button>
-    <button class="pin-btn" style="background:transparent;border:none;font-size:13px;color:var(--text-muted);" onclick="clearPin()">Limpar</button><button class="pin-btn" onclick="pressPin(0)">0</button><button class="pin-btn" style="background:transparent;border:none;font-size:16px;color:var(--primary);" onclick="backspacePin()"></button>
+    <button class="pin-btn" style="background:transparent;border:none;font-size:13px;color:var(--text-muted);" onclick="clearPin()">Limpar</button><button class="pin-btn" onclick="pressPin(0)">0</button><button class="pin-btn" style="background:transparent;border:none;font-size:16px;color:var(--primary);" onclick="backspacePin()">&#x232B;</button>
   </div>
 </div>
 
 <div id="config-pin-screen">
-  <div style="font-size:40px; margin-bottom:10px;"></div>
+  <div style="font-size:40px; margin-bottom:10px;">&#x2699;</div>
   <h2 id="config-pin-title" style="font-size:18px;font-weight:bold;margin-bottom:4px;">Configurar Novo PIN</h2>
   <p style="font-size:12px;color:var(--text-muted);">Digite 4 dígitos numéricos</p>
   <div class="pin-dots" id="config-pin-dots">
@@ -199,7 +199,7 @@
     <button class="pin-btn" onclick="pressConfigPin(1)">1</button><button class="pin-btn" onclick="pressConfigPin(2)">2</button><button class="pin-btn" onclick="pressConfigPin(3)">3</button>
     <button class="pin-btn" onclick="pressConfigPin(4)">4</button><button class="pin-btn" onclick="pressConfigPin(5)">5</button><button class="pin-btn" onclick="pressConfigPin(6)">6</button>
     <button class="pin-btn" onclick="pressConfigPin(7)">7</button><button class="pin-btn" onclick="pressConfigPin(8)">8</button><button class="pin-btn" onclick="pressConfigPin(9)">9</button>
-    <button class="pin-btn" style="background:transparent;border:none;font-size:13px;color:var(--text-muted);" onclick="cancelarConfigPIN()">Fechar</button><button class="pin-btn" onclick="pressConfigPin(0)">0</button><button class="pin-btn" style="background:transparent;border:none;font-size:16px;color:var(--primary);" onclick="backspaceConfigPin()"></button>
+    <button class="pin-btn" style="background:transparent;border:none;font-size:13px;color:var(--text-muted);" onclick="cancelarConfigPIN()">Fechar</button><button class="pin-btn" onclick="pressConfigPin(0)">0</button><button class="pin-btn" style="background:transparent;border:none;font-size:16px;color:var(--primary);" onclick="backspaceConfigPin()">&#x232B;</button>
   </div>
 </div>
 
@@ -231,10 +231,10 @@
     
     <div class="ponto-card">
       <div class="card-header-flex">
-        <h2> Ponto de Hoje</h2>
+        <h2>&#x23F1; Ponto de Hoje</h2>
         <div style="display:flex;gap:6px;">
-          <button class="btn-sm" style="background:var(--secondary-rgba);color:var(--secondary);border-color:rgba(56,217,169,0.2);" onclick="preencherDiaPadraoAutomatico()"> Auto</button>
-          <button class="btn-sm" onclick="abrirModalDia(todayKey)"> Detalhes</button>
+          <button class="btn-sm" style="background:var(--secondary-rgba);color:var(--secondary);border-color:rgba(56,217,169,0.2);" onclick="preencherDiaPadraoAutomatico()">&#x26A1; Auto</button>
+          <button class="btn-sm" onclick="abrirModalDia(todayKey)">&#x270F; Detalhes</button>
         </div>
       </div>
       <div id="ponto-body"></div>
@@ -243,7 +243,7 @@
 
     <div class="card-padrao">
       <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted); font-weight:bold; text-transform:uppercase;">
-        <span> Meta do Mês Corrente</span>
+        <span>&#x1F3AF; Meta do Mês Corrente</span>
         <span id="meta-porcentagem-texto" style="font-family:var(--font-mono); color:var(--text-main);">0%</span>
       </div>
       <div class="meta-progress-container">
@@ -253,7 +253,7 @@
     </div>
     
     <div class="card-padrao" id="banco-horas-card">
-      <h2 style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;"> Banco de Horas Acumulado</h2>
+      <h2 style="font-size:12px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">&#x1F4CA; Banco de Horas Acumulado</h2>
       <div style="display:flex;justify-content:between;align-items:center; width:100%;">
         <div style="flex:1; display:flex; align-items:center; justify-content:space-between;">
           <span id="banco-horas-valor" style="font-size:26px;font-weight:900;color:var(--secondary);font-family:var(--font-mono);">0h 00m</span>
@@ -269,19 +269,19 @@
       <div id="res-ef" style="margin-top:8px; font-size:14px; line-height:1.4;"></div>
     </div>
     
-    <div class="card-padrao"><h2> Comparativo Semanal (Atual vs Anterior)</h2><div id="grafico-container"></div></div>
-    <div class="card-padrao"><div class="card-header-flex" style="margin-bottom:0;"><h2> Lembretes Ativos</h2><span class="today-badge" style="background:var(--secondary);" id="notif-status-badge">ATIVO</span></div><div id="notif-container" style="margin-top:14px;"></div></div>
+    <div class="card-padrao"><h2>&#x1F4C8; Comparativo Semanal (Atual vs Anterior)</h2><div id="grafico-container"></div></div>
+    <div class="card-padrao"><div class="card-header-flex" style="margin-bottom:0;"><h2>&#x1F514; Lembretes Ativos</h2><span class="today-badge" style="background:var(--secondary);" id="notif-status-badge">ATIVO</span></div><div id="notif-container" style="margin-top:14px;"></div></div>
   </div>
   
   <div class="view" id="view-folgas">
     <div class="card-padrao">
       <div class="nav-month-header">
-        <button class="btn-nav-month" onclick="mudarMesNavegacao(-1)"></button>
+        <button class="btn-nav-month" onclick="mudarMesNavegacao(-1)">&#x25C0;</button>
         <h2 style="font-size:16px;"><span id="folgas-mes-nome"></span></h2>
-        <button class="btn-nav-month" onclick="mudarMesNavegacao(1)"></button>
+        <button class="btn-nav-month" onclick="mudarMesNavegacao(1)">&#x25B6;</button>
       </div>
       <div style="background: var(--bg-input); padding: 12px; border-radius: 10px; margin-bottom: 14px; border:1px solid var(--border);">
-        <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 6px;"> Marcar Folgas em Lote</span>
+        <span style="font-size: 11px; font-weight: bold; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 6px;">&#x2699; Marcar Folgas em Lote</span>
         <div style="display: flex; gap: 8px;">
           <select id="select-lote-dow" style="flex:1; padding:6px; background:var(--bg-card); color:var(--text-main); border:1px solid var(--border); border-radius:6px; font-size:12px;">
             <option value="1">Todas as Segundas</option>
@@ -303,9 +303,9 @@
   <div class="view" id="view-escala">
     <div class="card-padrao">
       <div class="nav-month-header">
-        <button class="btn-nav-month" onclick="mudarMesNavegacao(-1)"></button>
+        <button class="btn-nav-month" onclick="mudarMesNavegacao(-1)">&#x25C0;</button>
         <h2 style="font-size:16px;"><span id="escala-mes-nome"></span></h2>
-        <button class="btn-nav-month" onclick="mudarMesNavegacao(1)"></button>
+        <button class="btn-nav-month" onclick="mudarMesNavegacao(1)">&#x25B6;</button>
       </div>
       <div id="escala-list"></div>
     </div>
@@ -314,9 +314,9 @@
   <div class="view" id="view-historico">
     <div class="card-padrao">
       <div class="nav-month-header">
-        <button class="btn-nav-month" onclick="mudarMesNavegacao(-1)"></button>
+        <button class="btn-nav-month" onclick="mudarMesNavegacao(-1)">&#x25C0;</button>
         <h2 style="font-size:16px;"><span id="hist-mes-nome"></span></h2>
-        <button class="btn-nav-month" onclick="mudarMesNavegacao(1)"></button>
+        <button class="btn-nav-month" onclick="mudarMesNavegacao(1)">&#x25B6;</button>
       </div>
       <div id="hist-list"></div>
     </div>
@@ -324,21 +324,21 @@
 
   <div class="view" id="view-config">
     <div class="card-padrao">
-      <h2> Configurações e Segurança</h2>
+      <h2>&#x2699; Configurações e Segurança</h2>
       <p style="font-size:12px;color:var(--text-muted);margin:10px 0">Gerenciamento interno e customização</p>
       
       <div class="config-section">
-        <h3> Aparência Visual</h3>
+        <h3>&#x1F3A8; Aparência Visual</h3>
         <button class="btn-block" id="btn-toggle-theme" onclick="toggleTheme()">Alternar para Tema Claro</button>
       </div>
 
       <div class="config-section">
-        <h3> Bloqueio por PIN</h3>
+        <h3>&#x1F512; Bloqueio por PIN</h3>
         <button class="btn-block" id="btn-toggle-senha" onclick="abrirConfigPIN()">Ativar PIN do Aplicativo</button>
       </div>
 
       <div class="config-section">
-        <h3> Backup & Relatórios</h3>
+        <h3>&#x1F4BE; Backup & Relatórios</h3>
         <button class="btn-block" onclick="exportarBackupJSON()">Exportar Arquivo de Backup (JSON)</button>
         <button class="btn-block" onclick="document.getElementById('import-file').click()">Importar Arquivo de Backup (JSON)</button>
         <input type="file" id="import-file" style="display:none" onchange="importarBackupJSON(this)">
@@ -355,14 +355,14 @@
   </div>
 </main>
 
-<button class="fab-btn" id="fab-ponto-rapido" onclick="baterProximoPontoFAB()"></button>
+<button class="fab-btn" id="fab-ponto-rapido" onclick="baterProximoPontoFAB()">&#x1F4CC;</button>
 
 <nav>
-  <button class="nav-btn active" id="nav-hoje" onclick="switchView('hoje')"><span class="nav-icon"></span>Hoje</button>
-  <button class="nav-btn" id="nav-folgas" onclick="switchView('folgas')"><span class="nav-icon"></span>Folgas</button>
-  <button class="nav-btn" id="nav-escala" onclick="switchView('escala')"><span class="nav-icon"></span>Escala</button>
-  <button class="nav-btn" id="nav-historico" onclick="switchView('historico')"><span class="nav-icon"></span>Histórico</button>
-  <button class="nav-btn" id="nav-config" onclick="switchView('config')"><span class="nav-icon"></span>Config</button>
+  <button class="nav-btn active" id="nav-hoje" onclick="switchView('hoje')"><span class="nav-icon">&#x23F0;</span>Hoje</button>
+  <button class="nav-btn" id="nav-folgas" onclick="switchView('folgas')"><span class="nav-icon">&#x1F4C5;</span>Folgas</button>
+  <button class="nav-btn" id="nav-escala" onclick="switchView('escala')"><span class="nav-icon">&#x1F5D3;</span>Escala</button>
+  <button class="nav-btn" id="nav-historico" onclick="switchView('historico')"><span class="nav-icon">&#x1F4DC;</span>Histórico</button>
+  <button class="nav-btn" id="nav-config" onclick="switchView('config')"><span class="nav-icon">&#x2699;</span>Config</button>
 </nav>
 </div>
 
@@ -539,7 +539,7 @@ function runApp(){
     let badge = document.getElementById('today-badge');
     let isOff = isDayOff(now);
     if(badge) {
-        badge.textContent = isOff ? ' Folga' : ' Escala';
+        badge.textContent = isOff ? '\uFE0F Folga' : ' Escala';
         badge.className = isOff ? 'today-badge folga-badge' : 'today-badge';
     }
     
@@ -578,11 +578,11 @@ function renderWeek(){let g=document.getElementById('week-grid'),dow=now.getDay(
 function renderPonto(){
     let isOff=isDayOff(now),rec=data[todayKey]||{},b=document.getElementById('ponto-body');
     if(!b)return;
-    if(isOff){b.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-muted);"> Hoje é sua folga configurada!</div>';document.getElementById('resumo-card').style.display='none';document.getElementById('previsao-saida-box').style.display='none';return}
+    if(isOff){b.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-muted);">\uFE0F Hoje é sua folga configurada!</div>';document.getElementById('resumo-card').style.display='none';document.getElementById('previsao-saida-box').style.display='none';return}
     let tipos=['entrada','almoco-saida','almoco-volta','saida'],html='';
     tipos.forEach((t,i)=>{
         let val=rec[t],deps=[true,!!rec.entrada,!!rec['almoco-saida'],!!rec['almoco-volta']];
-        html+='<div class="ponto-row"><div><strong>'+LABELS[t]+'</strong><br><small style="color:var(--text-muted);font-family:var(--font-mono);">padrão '+DEFAULT[t]+'</small></div><div style="display:flex;align-items:center;"><span style="margin-right:12px;font-weight:bold;font-family:var(--font-mono);font-size:15px;color:'+(val?'var(--text-main)':'var(--border)')+'">'+(val||'--:--')+'</span><button class="btn-edit" onclick="abrirModalHora(\''+t+'\')"></button>'+(val?'':'<button class="btn-reg" '+(deps[i]?'':'disabled')+' onclick="baterPonto(\''+t+'\')"></button>')+'</div></div>';
+        html+='<div class="ponto-row"><div><strong>'+LABELS[t]+'</strong><br><small style="color:var(--text-muted);font-family:var(--font-mono);">padrão '+DEFAULT[t]+'</small></div><div style="display:flex;align-items:center;"><span style="margin-right:12px;font-weight:bold;font-family:var(--font-mono);font-size:15px;color:'+(val?'var(--text-main)':'var(--border)')+'">'+(val||'--:--')+'</span><button class="btn-edit" onclick="abrirModalHora(\''+t+'\')">&#x270F;&#xFE0F;</button>'+(val?'':'<button class="btn-reg" '+(deps[i]?'':'disabled')+' onclick="baterPonto(\''+t+'\')">&#x1F4CC;</button>')+'</div></div>';
     });
     b.innerHTML=html;
     
@@ -593,7 +593,7 @@ function renderPonto(){
         let saidaProjetadaMin = entMin + 440 + (almvMin - almsMin);
         let hProj = Math.floor(saidaProjetadaMin/60), mProj = saidaProjetadaMin%60;
         if(prevBox) {
-            prevBox.innerHTML = ` <strong>Previsão de Saída:</strong> Saia às <strong>${String(hProj).padStart(2,'0')}:${String(mProj).padStart(2,'0')}</strong> (7h20m líquidas).`;
+            prevBox.innerHTML = `\uFE0F <strong>Previsão de Saída:</strong> Saia às <strong>${String(hProj).padStart(2,'0')}:${String(mProj).padStart(2,'0')}</strong> (7h20m líquidas).`;
             prevBox.style.display = 'block';
         }
     } else { if(prevBox) prevBox.style.display = 'none'; }
@@ -795,7 +795,7 @@ function renderHistorico(){
     let nm = document.getElementById('hist-mes-nome'); if(nm) nm.textContent=MONTHS[viewMonth] + ' ' + viewYear;
     for(let d=totalDays;d>=1;d--){
         let date=new Date(viewYear,viewMonth,d),k=dk(date),rec=data[k]||{},isOff=!!rec.folga,horas='—';
-        if(isOff){horas=''}else if(rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(parseInt(b[0])-parseInt(a[0]))*60+(parseInt(b[1])-parseInt(a[1])),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(parseInt(av[0])-parseInt(as[0]))*60+(parseInt(av[1])-parseInt(as[1]))}horas=Math.floor((mt-mi)/60)+'h'}
+        if(isOff){horas='\uFE0F'}else if(rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(parseInt(b[0])-parseInt(a[0]))*60+(parseInt(b[1])-parseInt(a[1])),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(parseInt(av[0])-parseInt(as[0]))*60+(parseInt(av[1])-parseInt(as[1]))}horas=Math.floor((mt-mi)/60)+'h'}
         html+='<div class="hist-item" onclick="abrirModalDia(\''+k+'\')"><div><strong>'+d+' de '+MONTHS[viewMonth].slice(0,3)+'</strong><br><small style="color:var(--text-muted)">'+DAYS[date.getDay()]+'</small></div><div><span style="font-family:var(--font-mono);font-weight:bold;">'+horas+'</span></div></div>'
     }
     list.innerHTML=html;
@@ -811,8 +811,7 @@ function renderEscala(){
         sem.forEach(date=>{
             let k=dk(date),rec=data[k]||{},isOff=!!rec.folga,isFuture=date>now,isToday=k===todayKey,cls='escala-day',numColor='muted',status='',horas='—',horarios='';
             
-            // CORREÇÃO DOS STATUS PARA TRABALHO / TRABALHOU
-            if(isOff){cls+=' is-folga';numColor='green';status=' Folga'}
+            if(isOff){cls+=' is-folga';numColor='green';status='\uFE0F Folga'}
             else if(rec.entrada&&rec.saida){cls+=' is-trabalhou';numColor='blue';let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(parseInt(b[0])-parseInt(a[0]))*60+(parseInt(b[1])-parseInt(a[1])),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(parseInt(av[0])-parseInt(as[0]))*60+(parseInt(av[1])-parseInt(as[1]))}horas=Math.floor((mt-mi)/60)+'h';status=' Trabalhou';horarios=rec.entrada+' - '+rec.saida}
             else if(!isFuture){cls+=' is-pendente';status=' Pendente';horarios=DEFAULT.entrada+' - '+DEFAULT.saida}
             else{status=' Trabalho';horarios=DEFAULT.entrada+' - '+DEFAULT.saida;horas='7h20'}
