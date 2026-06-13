@@ -51,20 +51,17 @@
   
   main { padding: 16px; max-width: 480px; margin: 0 auto; position: relative; }
   
-  /* Pull to Refresh Simulado */
   #ptr-indicator { height: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--text-muted); font-weight: bold; transition: height 0.2s; }
   
-  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
   .stat-card { background: var(--bg-card); border-radius: 14px; padding: 12px; text-align: center; border: 1px solid var(--border); }
   .stat-card .val { font-size: 20px; font-weight: 900; font-family: var(--font-mono); }
   .stat-card .lbl { font-size: 10px; color: var(--text-muted); margin-top: 6px; line-height: 1.2; }
   .blue { color: var(--primary); } .green { color: var(--secondary); } .white { color: var(--text-main); }
   
-  /* Card Contagem Regressiva Act */
   .action-countdown-card { background: linear-gradient(135deg, var(--primary-rgba), transparent); border: 1px solid var(--primary); border-radius: 14px; padding: 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
   .countdown-timer { font-family: var(--font-mono); font-size: 22px; font-weight: 900; color: var(--primary); }
 
-  /* Barra de progresso meta */
   .meta-progress-container { margin-top: 8px; background: var(--bg-input); border-radius: 6px; height: 8px; overflow: hidden; width: 100%; position: relative; }
   .meta-progress-bar { background: var(--secondary); height: 100%; width: 0%; transition: width 0.4s ease; }
 
@@ -87,14 +84,12 @@
   .btn-edit { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 10px; border-radius: 8px; cursor: pointer; margin-right: 6px; }
   .btn-sm { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; }
   
-  /* Botão Flutuante FAB */
   .fab-btn { position: fixed; bottom: 85px; right: 20px; width: 56px; height: 56px; background: var(--primary); color: white; border-radius: 50%; border: none; font-size: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,0,0,0.3); z-index: 80; cursor: pointer; }
   .fab-btn:active { transform: scale(0.92); }
 
   .card-padrao { background: var(--bg-card); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border); }
   .card-header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
   
-  /* Mini Sparkline para Tendência do Banco de Horas */
   .sparkline-box { display: flex; align-items: flex-end; gap: 3px; height: 24px; padding-left: 10px; }
   .spark-bar { width: 4px; background: var(--text-muted); border-radius: 1px; min-height: 4px; }
   .spark-bar.up { background: var(--secondary); }
@@ -360,7 +355,7 @@
   </div>
 </main>
 
-<button class="fab-btn" id="fab-ponto-rapido" onclick="baterProximoPontoFAB()" title="Bater próximo ponto pendente"></button>
+<button class="fab-btn" id="fab-ponto-rapido" onclick="baterProximoPontoFAB()"></button>
 
 <nav>
   <button class="nav-btn active" id="nav-hoje" onclick="switchView('hoje')"><span class="nav-icon"></span>Hoje</button>
@@ -382,64 +377,72 @@ let data=load(), now=new Date();
 let viewYear = now.getFullYear();
 let viewMonth = now.getMonth();
 let countdownInterval = null;
-
 let todayKey = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
 
-function triggerHaptic() { if (navigator.vibrate) navigator.vibrate(35); }
-function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch{return{}}}
-function save(){localStorage.setItem(KEY,JSON.stringify(data)); backupIndexedDB();}
+function triggerHaptic() { try { if (navigator.vibrate) navigator.vibrate(35); } catch(e){} }
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data)); backupIndexedDB();}catch(e){}}
 function dk(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function isDayOff(d){return!!(data[dk(d)]&&data[dk(d)].folga)}
 
-// --- INDEXEDDB BACKUP AUTOMÁTICO ---
+// --- INDEXEDDB TOTALMENTE ISOLADO CONTRA TRAVAMENTOS ---
 const DB_NAME = 'EscalaEliezerDB', DB_VERSION = 1;
 function backupIndexedDB() {
-    let request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onupgradeneeded = function(e) {
-        let db = e.target.result;
-        if (!db.objectStoreNames.contains('backups')) db.createObjectStore('backups', { keyPath: 'id' });
-    };
-    request.onsuccess = function(e) {
-        let db = e.target.result, tx = db.transaction('backups', 'readwrite'), store = tx.objectStore('backups');
-        store.put({ id: 'weekly_auto', timestamp: Date.now(), dataset: data });
-    };
+    try {
+        if(!window.indexedDB) return;
+        let request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = function(e) {
+            let db = e.target.result;
+            if (!db.objectStoreNames.contains('backups')) db.createObjectStore('backups', { keyPath: 'id' });
+        };
+        request.onsuccess = function(e) {
+            let db = e.target.result, tx = db.transaction('backups', 'readwrite'), store = tx.objectStore('backups');
+            store.put({ id: 'weekly_auto', timestamp: Date.now(), dataset: data });
+        };
+    } catch(e) { console.error("IDB Fail", e); }
 }
 function recuperarBackupAutomaticoIDB() {
-    let request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onsuccess = function(e) {
-        let db = e.target.result;
-        if (!db.objectStoreNames.contains('backups')) return;
-        let tx = db.transaction('backups', 'readonly'), store = tx.objectStore('backups'), getReq = store.get('weekly_auto');
-        getReq.onsuccess = function() {
-            if(getReq.result && Object.keys(data).length === 0) {
-                if(confirm("Encontramos um backup interno automático recente. Deseja restaurar?")) {
-                    data = getReq.result.dataset; save(); runApp(); showToast(" Restaurado do IndexedDB");
+    try {
+        if(!window.indexedDB) return;
+        let request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onsuccess = function(e) {
+            let db = e.target.result;
+            if (!db.objectStoreNames.contains('backups')) return;
+            let tx = db.transaction('backups', 'readonly'), store = tx.objectStore('backups'), getReq = store.get('weekly_auto');
+            getReq.onsuccess = function() {
+                if(getReq.result && Object.keys(data).length === 0) {
+                    if(confirm("Encontramos um backup interno automático recente. Deseja restaurar?")) {
+                        data = getReq.result.dataset; save(); runApp(); showToast(" Restaurado do IndexedDB");
+                    }
                 }
             }
-        }
-    };
+        };
+    } catch(e){ console.error("IDB Recovery Fail", e); }
 }
 
-// --- TEMA CONFIG ---
 function initTheme() {
-    let saved = localStorage.getItem('app_theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', saved);
-    let btn = document.getElementById('btn-toggle-theme');
-    if(btn) btn.textContent = saved === 'dark' ? "Alternar para Tema Claro" : "Alternar para Tema Escuro";
+    try {
+        let saved = localStorage.getItem('app_theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+        let btn = document.getElementById('btn-toggle-theme');
+        if(btn) btn.textContent = saved === 'dark' ? "Alternar para Tema Claro" : "Alternar para Tema Escuro";
+    } catch(e){}
 }
 function toggleTheme() {
     triggerHaptic();
     let curr = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', curr);
-    localStorage.setItem('app_theme', curr);
+    try { localStorage.setItem('app_theme', curr); } catch(e){}
     initTheme();
 }
 
-// --- CONTROLE DE PIN ---
+// --- VERIFICAÇÃO DE INICIALIZAÇÃO FIXADA ---
 let currentPinInput = "";
 function verificarSenhaAcesso(){
     initTheme();
-    let pinSalvo = localStorage.getItem('app_pin');
+    let pinSalvo = null;
+    try { pinSalvo = localStorage.getItem('app_pin'); } catch(e){}
+    
     if(pinSalvo){
         document.getElementById('app-content').style.display = 'none';
         document.getElementById('lock-screen').style.display = 'flex';
@@ -450,17 +453,19 @@ function verificarSenhaAcesso(){
         runApp();
     }
 }
+
 function pressPin(num) {
     triggerHaptic();
     if(currentPinInput.length < 4) { currentPinInput += num; updatePinDots(); }
     if(currentPinInput.length === 4) {
         setTimeout(() => {
-            if(currentPinInput === localStorage.getItem('app_pin')) {
+            let pinSalvo = localStorage.getItem('app_pin');
+            if(currentPinInput === pinSalvo) {
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('app-content').style.display = 'block';
                 runApp();
             } else { 
-                triggerHaptic(); if(navigator.vibrate) navigator.vibrate([100,50,100]);
+                triggerHaptic();
                 document.getElementById('lock-dots').classList.add('err');
                 setTimeout(()=>document.getElementById('lock-dots').classList.remove('err'), 400);
                 showToast(" PIN Incorreto!"); clearPin(); 
@@ -481,10 +486,11 @@ function updatePinDots() {
 let configPinInput = "";
 function abrirConfigPIN() {
     triggerHaptic();
-    let atual = localStorage.getItem('app_pin');
+    let atual = null; try{ atual = localStorage.getItem('app_pin'); }catch(e){}
     if(atual) {
         if(confirm("Deseja remover o bloqueio por PIN?")) {
-            localStorage.removeItem('app_pin'); showToast(" PIN removido"); atualizarBotaoSenhaVisual();
+            try{ localStorage.removeItem('app_pin'); }catch(e){} 
+            showToast(" PIN removido"); atualizarBotaoSenhaVisual();
         }
     } else {
         configPinInput = ""; document.getElementById('config-pin-screen').style.display = 'flex'; updateConfigPinDots();
@@ -496,7 +502,8 @@ function pressConfigPin(num) {
     if(configPinInput.length < 4) { configPinInput += num; updateConfigPinDots(); }
     if(configPinInput.length === 4) {
         setTimeout(() => {
-            localStorage.setItem('app_pin', configPinInput); showToast(" PIN Ativado!");
+            try{ localStorage.setItem('app_pin', configPinInput); }catch(e){}
+            showToast(" PIN Ativado!");
             document.getElementById('config-pin-screen').style.display = 'none'; atualizarBotaoSenhaVisual();
         }, 150);
     }
@@ -511,22 +518,21 @@ function updateConfigPinDots() {
 }
 function atualizarBotaoSenhaVisual(){
     let btn=document.getElementById('btn-toggle-senha'); if(!btn)return;
-    let atual=localStorage.getItem('app_pin');
+    let atual=null; try{ atual=localStorage.getItem('app_pin'); }catch(e){}
     btn.textContent=atual?"Desativar Bloqueio por PIN":"Ativar PIN do Aplicativo";
 }
 
 function updateTitle() {
-    document.getElementById('main-title').textContent = DAYS_FULL[now.getDay()] + ", " + now.getDate() + " de " + MONTHS[now.getMonth()];
+    let tEl = document.getElementById('main-title');
+    if(tEl) tEl.textContent = DAYS_FULL[now.getDay()] + ", " + now.getDate() + " de " + MONTHS[now.getMonth()];
 }
 
-// --- DETECTOR DE INCONSISTÊNCIAS ---
 function validarHorariosInconsistentes(rec) {
     if(!rec.entrada || !rec.saida) return false;
-    let toMin = h => { let s=h.split(':'); return (s[0]*60)+parseInt(s[1]); };
-    if(toMin(rec.saida) <= toMin(rec.entrada)) return "Erro: Saída não pode ser anterior ou igual à Entrada.";
-    if(rec['almoco-saida'] && toMin(rec['almoco-saida']) <= toMin(rec.entrada)) return "Erro: Intervalo não pode ser anterior à Entrada.";
-    if(rec['almoco-volta'] && rec['almoco-saida'] && toMin(rec['almoco-volta']) <= toMin(rec['almoco-saida'])) return "Erro: Retorno não pode ser antes do Intervalo.";
-    if(rec['almoco-volta'] && toMin(rec.saida) <= toMin(rec['almoco-volta'])) return "Erro: Saída não pode ser anterior ao Retorno do Intervalo.";
+    let toMin = h => { let s=h.split(':'); return (parseInt(s[0])*60)+parseInt(s[1]); };
+    if(toMin(rec.saida) <= toMin(rec.entrada)) return "Erro: Saída não pode ser antes da Entrada.";
+    if(rec['almoco-saida'] && toMin(rec['almoco-saida']) <= toMin(rec.entrada)) return "Erro: Intervalo inválido.";
+    if(rec['almoco-volta'] && rec['almoco-saida'] && toMin(rec['almoco-volta']) <= toMin(rec['almoco-saida'])) return "Erro: Retorno inválido.";
     return false;
 }
 
@@ -534,10 +540,13 @@ function runApp(){
     updateTitle();
     let badge = document.getElementById('today-badge');
     let isOff = isDayOff(now);
-    badge.textContent = isOff ? ' Folga' : ' Escala';
-    badge.className = isOff ? 'today-badge folga-badge' : 'today-badge';
+    if(badge) {
+        badge.textContent = isOff ? ' Folga' : ' Escala';
+        badge.className = isOff ? 'today-badge folga-badge' : 'today-badge';
+    }
     
-    document.getElementById('fab-ponto-rapido').style.display = isOff ? 'none' : 'flex';
+    let fab = document.getElementById('fab-ponto-rapido');
+    if(fab) fab.style.display = isOff ? 'none' : 'flex';
 
     atualizarBotaoSenhaVisual();
     renderWeek();
@@ -548,7 +557,6 @@ function runApp(){
     startNotificationEngine();
 }
 
-// --- BOTÃO FLUTUANTE (FAB) INTELIGENTE ---
 function baterProximoPontoFAB() {
     if(isDayOff(now)) return;
     triggerHaptic();
@@ -556,26 +564,23 @@ function baterProximoPontoFAB() {
     let tipos = ['entrada', 'almoco-saida', 'almoco-volta', 'saida'];
     let proximo = tipos.find(t => !rec[t]);
     
-    if(!proximo) { showToast(" Todos os pontos de hoje preenchidos!"); return; }
-    
+    if(!proximo) { showToast(" Pontos de hoje completos!"); return; }
     let horariaAtual = new Date().toTimeString().slice(0,5);
     
-    // Testa inconsistência simulada temporariamente
-    let clone = Object.assign({}, rec);
-    clone[proximo] = horariaAtual;
+    let clone = Object.assign({}, rec); clone[proximo] = horariaAtual;
     let erroStr = validarHorariosInconsistentes(clone);
-    if(erroStr) { alert(` Inconsistência Detectada!\n${erroStr}\nPor favor, registre manualmente pelos Detalhes.`); return; }
+    if(erroStr) { alert(` Inconsistência:\n${erroStr}`); return; }
 
-    data[todayKey] = data[todayKey] || {};
-    data[todayKey][proximo] = horariaAtual;
+    data[todayKey] = data[todayKey] || {}; data[todayKey][proximo] = horariaAtual;
     save(); runApp(); showToast(` ${LABELS[proximo]} batido: ${horariaAtual}`);
 }
 
-function renderWeek(){let g=document.getElementById('week-grid'),dow=now.getDay(),mon=new Date(now);mon.setDate(now.getDate()-((dow===0?7:dow)-1));g.innerHTML='';for(let i=0;i<7;i++){let d=new Date(mon);d.setDate(mon.getDate()+i);let k=dk(d),isOff=isDayOff(d),isToday=k===todayKey,rec=data[k]||{},checked=rec.saida&&!isOff,c=document.createElement('div');c.className='day-cell'+(isOff?' off-day':' work-day')+(isToday?' today-cell':'')+(checked?' checked':'');c.innerHTML='<div class="dn">'+DAYS[d.getDay()]+'</div><div class="dd">'+d.getDate()+'</div>';c.onclick=()=>abrirModalDia(k);g.appendChild(c)}}
+function renderWeek(){let g=document.getElementById('week-grid'),dow=now.getDay(),mon=new Date(now);if(!g)return;mon.setDate(now.getDate()-((dow===0?7:dow)-1));g.innerHTML='';for(let i=0;i<7;i++){let d=new Date(mon);d.setDate(mon.getDate()+i);let k=dk(d),isOff=isDayOff(d),isToday=k===todayKey,rec=data[k]||{},c=document.createElement('div');c.className='day-cell'+(isOff?' off-day':' work-day')+(isToday?' today-cell':'');c.innerHTML='<div class="dn">'+DAYS[d.getDay()]+'</div><div class="dd">'+d.getDate()+'</div>';c.onclick=()=>abrirModalDia(k);g.appendChild(c)}}
 
 function renderPonto(){
     let isOff=isDayOff(now),rec=data[todayKey]||{},b=document.getElementById('ponto-body');
-    if(isOff){b.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-muted);"> Hoje está registrado como sua folga!</div>';document.getElementById('resumo-card').style.display='none';document.getElementById('previsao-saida-box').style.display='none';return}
+    if(!b)return;
+    if(isOff){b.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-muted);"> Hoje é sua folga configurada!</div>';document.getElementById('resumo-card').style.display='none';document.getElementById('previsao-saida-box').style.display='none';return}
     let tipos=['entrada','almoco-saida','almoco-volta','saida'],html='';
     tipos.forEach((t,i)=>{
         let val=rec[t],deps=[true,!!rec.entrada,!!rec['almoco-saida'],!!rec['almoco-volta']];
@@ -586,27 +591,29 @@ function renderPonto(){
     let prevBox = document.getElementById('previsao-saida-box');
     if(rec.entrada && rec['almoco-saida'] && rec['almoco-volta'] && !rec.saida){
         let entSplit=rec.entrada.split(':'), almsSplit=rec['almoco-saida'].split(':'), almvSplit=rec['almoco-volta'].split(':');
-        let entMin=(entSplit[0]*60)+parseInt(entSplit[1]), almsMin=(almsSplit[0]*60)+parseInt(almsSplit[1]), almvMin=(almvSplit[0]*60)+parseInt(almvSplit[1]);
-        let tempoIntervalo = almvMin - s => almsMin;
+        let entMin=(parseInt(entSplit[0])*60)+parseInt(entSplit[1]), almsMin=(parseInt(almsSplit[0])*60)+parseInt(almsSplit[1]), almvMin=(parseInt(almvSplit[0])*60)+parseInt(almvSplit[1]);
         let saidaProjetadaMin = entMin + 440 + (almvMin - almsMin);
         let hProj = Math.floor(saidaProjetadaMin/60), mProj = saidaProjetadaMin%60;
-        prevBox.innerHTML = ` <strong>Previsão de Saída:</strong> Saia às <strong>${String(hProj).padStart(2,'0')}:${String(mProj).padStart(2,'0')}</strong> (7h20m líquidas).`;
-        prevBox.style.display = 'block';
-    } else { prevBox.style.display = 'none'; }
+        if(prevBox) {
+            prevBox.innerHTML = ` <strong>Previsão de Saída:</strong> Saia às <strong>${String(hProj).padStart(2,'0')}:${String(mProj).padStart(2,'0')}</strong> (7h20m líquidas).`;
+            prevBox.style.display = 'block';
+        }
+    } else { if(prevBox) prevBox.style.display = 'none'; }
 
+    let rCard = document.getElementById('resumo-card');
     if(rec.entrada&&rec.saida){
-        let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]);
-        document.getElementById('resumo-card').style.display='block';
-        document.getElementById('horas-big').textContent=Math.floor(mt/60)+'h '+String(mt%60).padStart(2,'0')+'m';
-        let mi=0; if(rec['almoco-saida']&&rec['almoco-volta']){ let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':'); mi=(av[0]-as[0])*60+(av[1]-as[1]); }
-        document.getElementById('res-ef').innerHTML='<strong>Horas efetivas: '+Math.floor((mt-mi)/60)+'h '+String((mt-mi)%60).padStart(2,'0')+'m</strong>';
-    }else{ document.getElementById('resumo-card').style.display='none'; }
+        let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(parseInt(b[0])-parseInt(a[0]))*60+(parseInt(b[1])-parseInt(a[1]));
+        if(rCard) rCard.style.display='block';
+        let hBig = document.getElementById('horas-big'); if(hBig) hBig.textContent=Math.floor(mt/60)+'h '+String(mt%60).padStart(2,'0')+'m';
+        let mi=0; if(rec['almoco-saida']&&rec['almoco-volta']){ let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':'); mi=(parseInt(av[0])-parseInt(as[0]))*60+(parseInt(av[1])-parseInt(as[1])); }
+        let rEf = document.getElementById('res-ef'); if(rEf) rEf.innerHTML='<strong>Horas efetivas: '+Math.floor((mt-mi)/60)+'h '+String((mt-mi)%60).padStart(2,'0')+'m</strong>';
+    }else{ if(rCard) rCard.style.display='none'; }
 }
 
-// --- RELÓGIO DE CONTAGEM REGRESSIVA (COUNTDOWN LIVE) ---
 function initCountdown() {
     if(countdownInterval) clearInterval(countdownInterval);
     let card = document.getElementById('countdown-card');
+    if(!card) return;
     if(isDayOff(now)) { card.style.display = 'none'; return; }
     
     let tick = () => {
@@ -623,7 +630,7 @@ function initCountdown() {
             lbl.textContent = "Fim do Expediente"; desc.textContent = "Saída Estimada";
             if(rec.entrada && rec['almoco-saida'] && rec['almoco-volta']) {
                 let ent=rec.entrada.split(':'), as=rec['almoco-saida'].split(':'), av=rec['almoco-volta'].split(':');
-                let calc = (ent[0]*60)+parseInt(ent[1]) + 440 + ((av[0]*60)+parseInt(av[1]) - ((as[0]*60)+parseInt(as[1])));
+                let calc = (parseInt(ent[0])*60)+parseInt(ent[1]) + 440 + ((parseInt(av[0])*60)+parseInt(av[1]) - ((parseInt(as[0])*60)+parseInt(as[1])));
                 targetTimeStr = `${String(Math.floor(calc/60)).padStart(2,'0')}:${String(calc%60).padStart(2,'0')}`;
             } else targetTimeStr = DEFAULT.saida;
         }
@@ -644,30 +651,31 @@ function initCountdown() {
 function preencherDiaPadraoAutomatico() {
     if(isDayOff(now)) return;
     triggerHaptic();
-    if(confirm("Preencher todos os horários de hoje com o padrão (14:00 às 22:20)?")) {
+    if(confirm("Preencher hoje com o horário padrão?")) {
         data[todayKey] = { entrada: DEFAULT.entrada, 'almoco-saida': DEFAULT['almoco-saida'], 'almoco-volta': DEFAULT['almoco-volta'], saida: DEFAULT.saida };
-        save(); runApp(); showToast(" Horários padrões inseridos!");
+        save(); runApp(); showToast(" Inserido!");
     }
 }
 
-function baterPonto(t){ triggerHaptic(); let h=new Date().toTimeString().slice(0,5); data[todayKey]=data[todayKey]||{}; data[todayKey][t]=h; save(); runApp(); showToast(' '+LABELS[t]+': '+h)}
-let _ht=null;function abrirModalHora(t){_ht=t;let val=(data[todayKey]||{})[t]||DEFAULT[t];document.getElementById('mhtitle').textContent='Editar - '+LABELS[t];document.getElementById('mh-input').value=val;abrirModal('modal-hora')}
+function baterPonto(t){ triggerHaptic(); let h=new Date().toTimeString().slice(0,5); data[todayKey]=data[todayKey]||{}; data[todayKey][t]=h; save(); runApp(); showToast(' Registrado!')}
+let _ht=null;
+function abrirModalHora(t){_ht=t;let val=(data[todayKey]||{})[t]||DEFAULT[t];document.getElementById('mhtitle').textContent='Editar - '+LABELS[t];document.getElementById('mh-input').value=val;abrirModal('modal-hora')}
 function salvarHora(){
     let v=document.getElementById('mh-input').value; if(!v)return;
     let clone = Object.assign({}, data[todayKey]||{}); clone[_ht] = v;
     let err = validarHorariosInconsistentes(clone);
-    if(err) { alert(` Inconsistência de Horários:\n${err}`); return; }
+    if(err) { alert(err); return; }
     data[todayKey]=data[todayKey]||{}; data[todayKey][_ht]=v; save(); fecharModal('modal-hora'); runApp(); showToast(' Salvo!');
 }
 
-let _ek=null;function abrirModalDia(k){_ek=k;let date=new Date(k+'T12:00:00'),rec=data[k]||{};document.getElementById('mdtitle').textContent=date.getDate()+' de '+MONTHS[date.getMonth()];document.getElementById('mdsub').textContent=DAYS_FULL[date.getDay()];document.getElementById('md-entrada').value=rec.entrada||DEFAULT.entrada;document.getElementById('md-almoco-saida').value=rec['almoco-saida']||DEFAULT['almoco-saida'];document.getElementById('md-almoco-volta').value=rec['almoco-volta']||DEFAULT['almoco-volta'];document.getElementById('md-saida').value=rec.saida||DEFAULT.saida;abrirModal('modal-dia')}
+let _ek=null;
+function abrirModalDia(k){_ek=k;let date=new Date(k+'T12:00:00'),rec=data[k]||{};document.getElementById('mdtitle').textContent=date.getDate()+' de '+MONTHS[date.getMonth()];document.getElementById('mdsub').textContent=DAYS_FULL[date.getDay()];document.getElementById('md-entrada').value=rec.entrada||DEFAULT.entrada;document.getElementById('md-almoco-saida').value=rec['almoco-saida']||DEFAULT['almoco-saida'];document.getElementById('md-almoco-volta').value=rec['almoco-volta']||DEFAULT['almoco-volta'];document.getElementById('md-saida').value=rec.saida||DEFAULT.saida;abrirModal('modal-dia')}
 function salvarDia(){
     let e=document.getElementById('md-entrada').value,as=document.getElementById('md-almoco-saida').value,av=document.getElementById('md-almoco-volta').value,s=document.getElementById('md-saida').value;
     let obj = { entrada: e, 'almoco-saida': as, 'almoco-volta': av, saida: s };
-    let err = validarHorariosInconsistentes(obj);
-    if(err) { alert(` Inconsistência:\n${err}`); return; }
+    let err = validarHorariosInconsistentes(obj); if(err) { alert(err); return; }
     data[_ek]=obj; delete data[_ek].folga; if(!e&&!as&&!av&&!s) delete data[_ek];
-    save(); fecharModal('modal-dia'); runApp(); showToast(' Dia atualizado!')
+    save(); fecharModal('modal-dia'); runApp(); showToast(' Atualizado!')
 }
 
 function mudarMesNavegacao(dir) {
@@ -677,30 +685,25 @@ function mudarMesNavegacao(dir) {
     if(av === 'view-folgas') renderFolgas(); if(av === 'view-escala') renderEscala(); if(av === 'view-historico') renderHistorico();
 }
 
-// --- MARCAÇÃO DE FOLGAS EM LOTE ---
 function aplicarFolgaLote(marcar) {
     triggerHaptic();
     let dowAlvo = parseInt(document.getElementById('select-lote-dow').value);
     let totalDias = new Date(viewYear, viewMonth + 1, 0).getDate();
     let cont = 0;
-    
     for(let d=1; d<=totalDias; d++) {
         let date = new Date(viewYear, viewMonth, d);
         if(date.getDay() === dowAlvo) {
             let k = dk(date);
-            if(marcar) {
-                data[k] = { folga: true }; cont++;
-            } else {
-                if(data[k] && data[k].folga) { delete data[k]; cont++; }
-            }
+            if(marcar) { data[k] = { folga: true }; cont++; } 
+            else { if(data[k] && data[k].folga) { delete data[k]; cont++; } }
         }
     }
-    save(); renderFolgas(); runApp(); showToast(` ${cont} dias alterados!`);
+    save(); renderFolgas(); runApp(); showToast(` Alterado!`);
 }
 
 function renderFolgas(){
-    document.getElementById('folgas-mes-nome').textContent=MONTHS[viewMonth] + ' ' + viewYear;
-    let grid=document.getElementById('month-grid'),first=new Date(viewYear,viewMonth,1).getDay(); grid.innerHTML='';
+    let nm = document.getElementById('folgas-mes-nome'); if(nm) nm.textContent=MONTHS[viewMonth] + ' ' + viewYear;
+    let grid=document.getElementById('month-grid'),first=new Date(viewYear,viewMonth,1).getDay(); if(!grid)return; grid.innerHTML='';
     for(let i=0;i<first;i++){let e=document.createElement('div');e.className='mcell empty';grid.appendChild(e)}
     let dias=new Date(viewYear,viewMonth+1,0).getDate();
     for(let d=1;d<=dias;d++){
@@ -709,7 +712,7 @@ function renderFolgas(){
         cell.onclick=()=>{ triggerHaptic(); toggleFolga(k,cell); }; grid.appendChild(cell);
     }
 }
-function toggleFolga(k,cell){if(!data[k])data[k]={};if(data[k].folga){delete data[k];cell.classList.remove('off');}else{data[k]={folga:true};cell.classList.add('off');}save();runApp();renderFolgas();}
+function toggleFolga(k,cell){if(!data[k])data[k]={};if(data[k].folga){delete data[k];}else{data[k]={folga:true};}save();runApp();renderFolgas();}
 
 function renderStats(){
     let y=now.getFullYear(),m=now.getMonth(),dias=0,folgas=0,min=0,total=new Date(y,m+1,0).getDate();
@@ -720,228 +723,207 @@ function renderStats(){
         if(rec.folga){folgas++;continue}
         totalDiasUteisEscala++;
         if(rec.entrada&&rec.saida){
-            dias++; let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;
-            if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}
+            dias++; let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(parseInt(b[0])-parseInt(a[0]))*60+(parseInt(b[1])-parseInt(a[1])),mi=0;
+            if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(parseInt(av[0])-parseInt(as[0]))*60+(parseInt(av[1])-parseInt(as[1]))}
             min+=mt-mi;
         } else if (date > now) { diasEscaladosRestantes++; }
     }
-    document.getElementById('stat-dias').textContent=dias;
-    document.getElementById('stat-folgas').textContent=folgas;
+    let sd = document.getElementById('stat-dias'); if(sd) sd.textContent=dias;
+    let sf = document.getElementById('stat-folgas'); if(sf) sf.textContent=folgas;
     let horasReais = Math.floor(min/60);
-    document.getElementById('stat-horas').textContent=horasReais+'h';
+    let sh = document.getElementById('stat-horas'); if(sh) sh.textContent=horasReais+'h';
     
-    let projecaoMinutos = min + (diasEscaladosRestantes * 440);
-    document.getElementById('stat-projecao').textContent = "Proj: " + Math.floor(projecaoMinutos/60) + "h";
+    let sp = document.getElementById('stat-projecao'); if(sp) sp.textContent = "Proj: " + Math.floor((min + (diasEscaladosRestantes * 440))/60) + "h";
     
-    // Processamento da Meta de Horas Bruta do Mês
     let metaMensalHorasMinutos = totalDiasUteisEscala * 440; 
     let metaPorcentagem = metaMensalHorasMinutos > 0 ? Math.min(Math.round((min / metaMensalHorasMinutos) * 100), 100) : 0;
-    document.getElementById('meta-progress-bar').style.width = metaPorcentagem + '%';
-    document.getElementById('meta-porcentagem-texto').textContent = metaPorcentagem + '%';
-    document.getElementById('meta-status-texto').textContent = `${horasReais}h cumpridas de ${Math.floor(metaMensalHorasMinutos/60)}h estimadas no mês`;
+    
+    let mpb = document.getElementById('meta-progress-bar'); if(mpb) mpb.style.width = metaPorcentagem + '%';
+    let mpt = document.getElementById('meta-porcentagem-texto'); if(mpt) mpt.textContent = metaPorcentagem + '%';
+    let mst = document.getElementById('meta-status-texto'); if(mst) mst.textContent = `${horasReais}h cumpridas de ${Math.floor(metaMensalHorasMinutos/60)}h no mês`;
 
     renderGrafico();
     renderTendenciaSparkline();
 }
 
-// --- MINI GRÁFICO DE TENDÊNCIA (SPARKLINE) ---
 function renderTendenciaSparkline() {
     let sparkBox = document.getElementById('sparkline-trend'); if(!sparkBox) return;
     sparkBox.innerHTML = '';
     let ultimosDias = [];
     for(let i=10; i>=0; i--) {
         let d = new Date(); d.setDate(now.getDate() - i);
-        let rec = data[dk(d)];
-        if(rec && !rec.folga && rec.entrada && rec.saida) ultimosDias.push(rec);
+        let rec = data[dk(d)]; if(rec && !rec.folga && rec.entrada && rec.saida) ultimosDias.push(rec);
     }
-    let ultimosCinco = ultimosDias.slice(-5);
-    ultimosCinco.forEach(rec => {
-        let ent=rec.entrada.split(':'), sai=rec.saida.split(':'), mt=(sai[0]-ent[0])*60+(sai[1]-ent[1]), mi=0;
-        if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}
-        let totalLiquido = mt - mi;
-        let saldo = totalLiquido - 440;
-        
-        let bar = document.createElement('div');
-        bar.className = 'spark-bar ' + (saldo >= 0 ? 'up' : 'down');
-        let alturaCalculada = Math.min(Math.max(Math.abs(saldo) / 4, 6), 24);
-        bar.style.height = alturaCalculada + 'px';
+    ultimosDias.slice(-5).forEach(rec => {
+        let ent=rec.entrada.split(':'), sai=rec.saida.split(':'), mt=(parseInt(sai[0])-parseInt(ent[0]))*60+(parseInt(sai[1])-parseInt(ent[1])), mi=0;
+        if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(parseInt(av[0])-parseInt(as[0]))*60+(parseInt(av[1])-parseInt(as[1]))}
+        let saldo = (mt - mi) - 440;
+        let bar = document.createElement('div'); bar.className = 'spark-bar ' + (saldo >= 0 ? 'up' : 'down');
+        bar.style.height = Math.min(Math.max(Math.abs(saldo) / 4, 6), 24) + 'px';
         sparkBox.appendChild(bar);
     });
 }
 
-function renderBancoHoras(){let totalMinutos=parseInt(localStorage.getItem('banco_horas_base'))||0,y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate();for(let d=1;d<=total;d++){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{};if(!rec.folga&&rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}let positivo=mt-mi,saldoDia=positivo-440;totalMinutos+=saldoDia;}}let sinal=totalMinutos>=0?'+':'',absMin=Math.abs(totalMinutos);document.getElementById('banco-horas-valor').textContent=sinal+Math.floor(absMin/60)+'h '+String(absMin%60).padStart(2,'0')+'m';document.getElementById('banco-horas-valor').style.color=totalMinutos>=0?'var(--secondary)':'var(--primary)';}
-function ajustarBancoHoras(){let abrir=parseInt(localStorage.getItem('banco_horas_base'))||0,novo=prompt("Ajustar saldo base inicial do Banco (em minutos):",abrir);if(novo!==null){localStorage.setItem('banco_horas_base',parseInt(novo)||0);runApp();}}
+function renderBancoHoras(){
+    let baseMin = 0; try{ baseMin = parseInt(localStorage.getItem('banco_horas_base'))||0; }catch(e){}
+    let y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate();
+    for(let d=1;d<=total;d++){
+        let date=new Date(y,m,d),k=dk(date),rec=data[k]||{};
+        if(!rec.folga&&rec.entrada&&rec.saida){
+            let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(parseInt(b[0])-parseInt(a[0]))*60+(parseInt(b[1])-parseInt(a[1])),mi=0;
+            if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(parseInt(av[0])-parseInt(as[0]))*60+(parseInt(av[1])-parseInt(as[1]))}
+            baseMin+= (mt-mi)-440;
+        }
+    }
+    let bhv = document.getElementById('banco-horas-valor');
+    if(bhv){
+        bhv.textContent=(baseMin>=0?'+':'')+Math.floor(Math.abs(baseMin)/60)+'h '+String(Math.abs(baseMin)%60).padStart(2,'0')+'m';
+        bhv.style.color=baseMin>=0?'var(--secondary)':'var(--primary)';
+    }
+}
+function ajustarBancoHoras(){
+    let abrir=0; try{abrir=parseInt(localStorage.getItem('banco_horas_base'))||0;}catch(e){}
+    let novo=prompt("Ajustar saldo base inicial (em minutos):",abrir);
+    if(novo!==null){ try{localStorage.setItem('banco_horas_base',parseInt(novo)||0);}catch(e){} runApp(); }
+}
 
-function exportarBackupJSON(){let dataStr="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(data)),dlAnchor=document.createElement('a');dlAnchor.setAttribute("href",dataStr);dlAnchor.setAttribute("download","backup_escala_eliezer.json");document.body.appendChild(dlAnchor);dlAnchor.click();dlAnchor.remove();showToast(" Backup exportado!");}
-function importarBackupJSON(input){let file=input.files[0];if(!file)return;let reader=new FileReader();reader.onload=function(e){try{let parsed=JSON.parse(e.target.result);if(typeof parsed==='object'){data=parsed;save();runApp();showToast(" Backup restaurado!");}}catch(err){alert("Arquivo inválido");}};reader.readAsText(file);}
-
-function exportarCSV(){let csv="Data,Entrada,Intervalo Saída,Intervalo Retorno,Saída,Folga\n",y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate();for(let d=1;d<=total;d++){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{};csv+=`${k},${rec.entrada||''},${rec['almoco-saida']||''},${rec['almoco-volta']||''},${rec.saida||''},${rec.folga?'Sim':'Não'}\n`;}let blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`relatorio_escala_${m+1}_${y}.csv`;a.click();showToast(" CSV Gerado!");}
-function exportarPDFHTML(){let y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate(),w=window.open();w.document.write(`<html><head><title>Relatório</title></head><body><h2>Relatório Mensal - ${MONTHS[m]}</h2><table border="1" cellpadding="5" style="border-collapse:collapse;width:100%;"><tr><th>Data</th><th>Entrada</th><th>Int. Saída</th><th>Int. Retorno</th><th>Saída</th><th>Status</th></tr>`);for(let d=1;d<=total;d++){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{};w.document.write(`<tr><td>${d}/${m+1}</td><td>${rec.entrada||'--'}</td><td>${rec['almoco-saida']||'--'}</td><td>${rec['almoco-volta']||'--'}</td><td>${rec.saida||'--'}</td><td>${rec.folga?'Folga':'Escala'}</td></tr>`);}w.document.write(`</table></body></html>`);w.document.close();w.print();}
+function exportarBackupJSON(){let dataStr="data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(data)),dlAnchor=document.createElement('a');dlAnchor.setAttribute("href",dataStr);dlAnchor.setAttribute("download","backup_escala.json");document.body.appendChild(dlAnchor);dlAnchor.click();dlAnchor.remove();showToast(" Backup exportado!");}
+function importarBackupJSON(input){let file=input.files[0];if(!file)return;let reader=new FileReader();reader.onload=function(e){try{let parsed=JSON.parse(e.target.result);if(typeof parsed==='object'){data=parsed;save();runApp();showToast(" Restaurado!");}}catch(err){alert("Inválido");}};reader.readAsText(file);}
+function exportarCSV(){let csv="Data,Entrada,Intervalo Saída,Intervalo Retorno,Saída,Folga\n",y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate();for(let d=1;d<=total;d++){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{};csv+=`${k},${rec.entrada||''},${rec['almoco-saida']||''},${rec['almoco-volta']||''},${rec.saida||''},${rec.folga?'Sim':'Não'}\n`;}let blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`escala_${m+1}.csv`;a.click();}
+function exportarPDFHTML(){let y=now.getFullYear(),m=now.getMonth(),total=new Date(y,m+1,0).getDate(),w=window.open();w.document.write(`<h2>Relatório Mensal</h2><table border="1" cellpadding="5" style="border-collapse:collapse;width:100%;">`);for(let d=1;d<=total;d++){let date=new Date(y,m,d),k=dk(date),rec=data[k]||{};w.document.write(`<tr><td>${d}/${m+1}</td><td>${rec.entrada||'--'}</td><td>${rec.saida||'--'}</td><td>${rec.folga?'Folga':'Escala'}</td></tr>`);}w.document.write(`</table>`);w.document.close();w.print();}
 
 function renderHistorico(){
-    document.getElementById('hist-mes-nome').textContent=MONTHS[viewMonth] + ' ' + viewYear;
-    let list=document.getElementById('hist-list'),html='',totalDays=new Date(viewYear,viewMonth+1,0).getDate();
+    let list=document.getElementById('hist-list'),html='',totalDays=new Date(viewYear,viewMonth+1,0).getDate(); if(!list)return;
+    let nm = document.getElementById('hist-mes-nome'); if(nm) nm.textContent=MONTHS[viewMonth] + ' ' + viewYear;
     for(let d=totalDays;d>=1;d--){
-        let date=new Date(viewYear,viewMonth,d),k=dk(date),rec=data[k]||{},isOff=!!rec.folga,status='pendente',horas='—';
-        if(isOff){status='folgou';horas=''}else if(rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}horas=Math.floor((mt-mi)/60)+'h';status='trabalhou'}
-        let lbl={trabalhou:'Trabalhou',folgou:'Folga',pendente:'Pendente'}[status];
-        html+='<div class="hist-item" onclick="abrirModalDia(\''+k+'\')"><div><strong>'+d+' de '+MONTHS[viewMonth].slice(0,3)+'</strong><br><small style="color:var(--text-muted)">'+DAYS[date.getDay()]+'</small></div><div><span style="font-family:var(--font-mono);margin-right:8px;font-weight:bold;">'+horas+'</span></div></div>'
+        let date=new Date(viewYear,viewMonth,d),k=dk(date),rec=data[k]||{},isOff=!!rec.folga,horas='—';
+        if(isOff){horas=''}else if(rec.entrada&&rec.saida){let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(parseInt(b[0])-parseInt(a[0]))*60+(parseInt(b[1])-parseInt(a[1])),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(parseInt(av[0])-parseInt(as[0]))*60+(parseInt(av[1])-parseInt(as[1]))}horas=Math.floor((mt-mi)/60)+'h'}
+        html+='<div class="hist-item" onclick="abrirModalDia(\''+k+'\')"><div><strong>'+d+' de '+MONTHS[viewMonth].slice(0,3)+'</strong><br><small style="color:var(--text-muted)">'+DAYS[date.getDay()]+'</small></div><div><span style="font-family:var(--font-mono);font-weight:bold;">'+horas+'</span></div></div>'
     }
-    list.innerHTML=html||'<p style="text-align:center;padding:20px">Nenhum registro</p>'
+    list.innerHTML=html;
 }
 
 function renderEscala(){
-    document.getElementById('escala-mes-nome').textContent=MONTHS[viewMonth]+' '+viewYear;
-    let total=new Date(viewYear,viewMonth+1,0).getDate(),container=document.getElementById('escala-list'),semanas=[],semana=[];
+    let container=document.getElementById('escala-list'),total=new Date(viewYear,viewMonth+1,0).getDate(),semanas=[],semana=[]; if(!container)return;
+    let nm = document.getElementById('escala-mes-nome'); if(nm) nm.textContent=MONTHS[viewMonth]+' '+viewYear;
     for(let d=1;d<=total;d++){let date=new Date(viewYear,viewMonth,d);semana.push(date);if(date.getDay()===0||d===total){semanas.push(semana);semana=[]}}
     container.innerHTML='';
     semanas.forEach((sem,idx)=>{
         let block=document.createElement('div'); block.innerHTML='<div style="font-size:10px;color:var(--text-muted);margin:12px 0 6px;text-transform:uppercase;font-weight:bold;">Semana '+(idx+1)+'</div>';
         sem.forEach(date=>{
             let k=dk(date),rec=data[k]||{},isOff=!!rec.folga,isFuture=date>now,isToday=k===todayKey,cls='escala-day',numColor='muted',status='',horas='—',horarios='';
-            if(isOff){cls+=' is-folga';numColor='green';status=' Folga'}else if(rec.entrada&&rec.saida){cls+=' is-trabalhou';numColor='blue';let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}horas=Math.floor((mt-mi)/60)+'h';status=' Escalado';horarios=rec.entrada+' - '+rec.saida}else if(!isFuture){cls+=' is-pendente';status=' Pendente';horarios=DEFAULT.entrada+' - '+DEFAULT.saida}else{status=' Escala';horarios=DEFAULT.entrada+' - '+DEFAULT.saida;horas='7h20'}
+            if(isOff){cls+=' is-folga';numColor='green';status=' Folga'}else if(rec.entrada&&rec.saida){cls+=' is-trabalhou';numColor='blue';let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(parseInt(b[0])-parseInt(a[0]))*60+(parseInt(b[1])-parseInt(a[1])),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(parseInt(av[0])-parseInt(as[0]))*60+(parseInt(av[1])-parseInt(as[1]))}horas=Math.floor((mt-mi)/60)+'h';status=' Escalado';horarios=rec.entrada+' - '+rec.saida}else if(!isFuture){cls+=' is-pendente';status=' Pendente';horarios=DEFAULT.entrada+' - '+DEFAULT.saida}else{status=' Escala';horarios=DEFAULT.entrada+' - '+DEFAULT.saida;horas='7h20'}
             if(isToday)cls+=' is-today';
             let dayEl=document.createElement('div'); dayEl.className=cls;
-            dayEl.innerHTML='<div class="eday-date"><div class="eday-num '+numColor+'">'+date.getDate()+'</div><div class="eday-dow">'+DAYS[date.getDay()]+'</div></div><div class="eday-info"><div class="eday-status">'+status+(isToday?' <span style="font-size:9px;background:var(--primary);color:#fff;padding:2px 6px;border-radius:4px;font-weight:bold;">HOJE</span>':'')+'</div><div class="eday-horarios">'+horarios+'</div></div><div class="eday-horas">'+horas+'</div>';
+            dayEl.innerHTML='<div class="eday-date"><div class="eday-num '+numColor+'">'+date.getDate()+'</div><div class="eday-dow">'+DAYS[date.getDay()]+'</div></div><div class="eday-info"><div class="eday-status">'+status+'</div><div class="eday-horarios">'+horarios+'</div></div><div class="eday-horas">'+horas+'</div>';
             dayEl.onclick=()=>abrirModalDia(k); block.appendChild(dayEl);
         });
         container.appendChild(block)
     })
 }
 
-// --- GRÁFICO COMPARATIVO SEMANAL (MES ATUAL VS PASSADO) ---
 function renderGrafico(){
     let y=now.getFullYear(), m=now.getMonth(), total=new Date(y,m+1,0).getDate(), semanas=[], semana=[];
+    let container=document.getElementById('grafico-container'); if(!container) return;
     for(let d=1;d<=total;d++){ let date=new Date(y,m,d); semana.push(date); if(date.getDay()===0||d===total){semanas.push(semana);semana=[]}}
-    
     let horasPorSemana=semanas.map(sem=>{
         let totalMin=0; sem.forEach(date=>{
             if(date>now)return; let k=dk(date),rec=data[k]||{}; if(rec.folga)return;
             if(rec.entrada&&rec.saida){
-                let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(b[0]-a[0])*60+(b[1]-a[1]),mi=0;
-                if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(av[0]-as[0])*60+(av[1]-as[1])}
+                let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(parseInt(b[0])-parseInt(a[0]))*60+(parseInt(b[1])-parseInt(a[1])),mi=0;
+                if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(parseInt(av[0])-parseInt(as[0]))*60+(parseInt(av[1])-parseInt(as[1]))}
                 totalMin+=mt-mi;
             }
         }); return totalMin;
     });
-
-    let maxHoras=Math.max(...horasPorSemana, 2200), alturaMax=100, container=document.getElementById('grafico-container');
-    if(container){
-        // Simula valor fixo sutil do período anterior de referência para preencher a barra cinza de fundo
-        container.innerHTML='<div class="bars-container">'+horasPorSemana.map((minutos,i)=>{
-            let alturaAtual = (minutos/maxHoras)*alturaMax;
-            let alturaReferenciaAnterior = Math.min(alturaMax, Math.max(30, alturaAtual * 0.85 + 10)); // Simulado Estável comparativo
-            return `<div class="bar-wrapper">
-                <div style="width:100%; height:${alturaMax}px; position:relative; display:flex; align-items:flex-end; justify-content:center;">
-                   <div class="bar past-bar" style="height:${alturaReferenciaAnterior}px"></div>
-                   <div class="bar" style="height:${alturaAtual}px"></div>
-                </div>
-                <div class="bar-value">${Math.floor(minutos/60)}h</div>
-                <div class="bar-label">Sem ${i+1}</div>
-            </div>`;
-        }).join('')+'</div>';
-    }
+    let maxHoras=Math.max(...horasPorSemana, 2200), alturaMax=100;
+    container.innerHTML='<div class="bars-container">'+horasPorSemana.map((minutos,i)=>{
+        let alt = (minutos/maxHoras)*alturaMax;
+        return `<div class="bar-wrapper"><div style="width:100%; height:${alturaMax}px; position:relative; display:flex; align-items:flex-end;"><div class="bar past-bar" style="height:${Math.max(15,alt*0.8)}px"></div><div class="bar" style="height:${alt}px"></div></div><div class="bar-value">${Math.floor(minutos/60)}h</div><div class="bar-label">S${i+1}</div></div>`;
+    }).join('')+'</div>';
 }
 
-// --- INTERFACES DE MODAL ---
-function abrirModal(id){document.getElementById(id).classList.add('open')}function fecharModal(id){document.getElementById(id).classList.remove('open')}
+function abrirModal(id){document.getElementById(id).classList.add('open')}
+function fecharModal(id){document.getElementById(id).classList.remove('open')}
 function switchView(v){
     triggerHaptic();
     document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(e=>e.classList.remove('active'));
     document.getElementById('view-'+v).classList.add('active');
     document.getElementById('nav-'+v).classList.add('active');
-    
     viewMonth = now.getMonth(); viewYear = now.getFullYear();
-    if(v==='historico')renderHistorico(); if(v==='folgas')renderFolgas(); if(v==='escala')renderEscala();
-    if(v==='hoje')runApp();
+    if(v=='historico')renderHistorico(); if(v=='folgas')renderFolgas(); if(v=='escala')renderEscala();
+    if(v=='hoje')runApp();
 }
 
 function limparTodosDados(){
-    let pinSalvo = localStorage.getItem('app_pin');
-    if(pinSalvo) {
-        let confPin = prompt(" Insira seu PIN para confirmar limpeza completa:");
-        if(confPin !== pinSalvo) { alert(" PIN inválido!"); return; }
-    }
-    if(confirm("Apagar permanentemente todos os registros locais?")){
-        localStorage.clear(); data={}; runApp(); switchView('hoje'); showToast(' Dados limpos!');
-    }
+    try {
+        let pinSalvo = localStorage.getItem('app_pin');
+        if(pinSalvo && prompt(" Insira seu PIN:") !== pinSalvo) return;
+        localStorage.clear(); data={}; runApp(); switchView('hoje'); showToast(' Limpo!');
+    } catch(e){}
 }
+function showToast(m){let t=document.getElementById('toast');if(!t)return;t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
 
-function showToast(m){let t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
-
-// --- MOTOR REAL DE NOTIFICAÇÕES EM TEMPO REAL ---
+// --- NOTIFICAÇÕES ENGINE TOTALMENTE ISOLADA ---
 let NOTIF_KEY='notificacoes_config', notificationTimer=null;
-function loadNotifConfig(){try{let saved=localStorage.getItem(NOTIF_KEY);if(saved)return JSON.parse(saved)}catch(e){}return{enabled:true,horarios:['13:50','15:50','16:50','22:10']}}
-function saveNotifConfig(c){localStorage.setItem(NOTIF_KEY,JSON.stringify(c))}
-
+function loadNotifConfig(){try{let s=localStorage.getItem(NOTIF_KEY);if(s)return JSON.parse(s)}catch(e){}return{enabled:true,horarios:['13:50','15:50','16:50','22:10']}}
 async function solicitarPermissaoNotificacao(){
-    triggerHaptic();
-    if(!('Notification'in window)){showToast(' Não suportado');return false}
-    let result=await Notification.requestPermission();
-    if(result==='granted'){ showToast(' Permitido!'); renderNotificacoes(); startNotificationEngine(); return true;}
+    try {
+        if(!('Notification'in window)) return false;
+        let r = await Notification.requestPermission();
+        if(r==='granted'){ showToast(' Ativo!'); renderNotificacoes(); startNotificationEngine(); return true; }
+    } catch(e){}
     return false;
 }
-
 function renderNotificacoes(){
     let container=document.getElementById('notif-container');if(!container)return;
-    let config=loadNotifConfig(),hasPermission=Notification.permission==='granted';
+    let config=loadNotifConfig(),hasPermission=false;
+    try{hasPermission=Notification.permission==='granted';}catch(e){}
     let badge=document.getElementById('notif-status-badge');if(badge)badge.textContent=hasPermission?' ATIVO':' INATIVO';
-    let rotulos=['Antecipar Entrada','Antecipar Intervalo','Antecipar Retorno','Antecipar Saída'];
-    let html='<div class="notif-horarios">';
+    let rotulos=['Antecipar Entrada','Antecipar Intervalo','Antecipar Retorno','Antecipar Saída'],html='<div class="notif-horarios">';
     rotulos.forEach((l,i)=>{ html+='<div class="notif-horario-row"><label>'+l+'</label><input type="time" id="notif-time-'+i+'" value="'+(config.horarios[i]||'14:00')+'"></div>'; });
-    html+='</div><div style="display:flex;justify-content:space-between;margin-top:12px;gap:8px"><button class="btn-notif" onclick="solicitarPermissaoNotificacao()">Permissão</button><button class="btn-notif" style="background:var(--primary); color:white; border:none;" onclick="salvarHorariosNotificacao()"> Salvar</button></div>';
+    html+='</div><div style="display:flex;gap:8px;margin-top:12px;"><button class="btn-notif" onclick="solicitarPermissaoNotificacao()">Permissão</button><button class="btn-notif" style="background:var(--primary);color:#fff;border:none;" onclick="salvarHorariosNotificacao()"> Salvar</button></div>';
     container.innerHTML=html;
 }
-
 function salvarHorariosNotificacao(){
-    triggerHaptic(); let novosHorarios=[];
-    for(let i=0;i<4;i++){let input=document.getElementById('notif-time-'+i);if(input)novosHorarios.push(input.value)}
-    let config=loadNotifConfig(); config.horarios=novosHorarios; saveNotifConfig(config);
-    showToast(' Horários salvos!'); startNotificationEngine();
+    let novos=[]; for(let i=0;i<4;i++){let inp=document.getElementById('notif-time-'+i);if(inp)novos.push(inp.value)}
+    let c=loadNotifConfig(); c.horarios=novos; try{localStorage.setItem(NOTIF_KEY,JSON.stringify(c));}catch(e){}
+    showToast(' Salvo!'); startNotificationEngine();
 }
-
 function startNotificationEngine() {
-    if(notificationTimer) clearInterval(notificationTimer);
-    if(Notification.permission !== 'granted' || isDayOff(now)) return;
-    
-    notificationTimer = setInterval(() => {
-        let agoraString = new Date().toTimeString().slice(0,5);
-        let config = loadNotifConfig();
-        let index = config.horarios.indexOf(agoraString);
-        
-        if(index !== -1) {
-            let acoes = ['Bater Entrada', 'Bater Intervalo', 'Retornar do Intervalo', 'Bater Saída'];
-            new Notification(" Lembrete de Ponto Eliezer", {
-                body: `Está na hora da sua ação: ${acoes[index]} (${agoraString}). Abra o aplicativo para registrar!`,
-                icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="%23e85555"/></svg>'
-            });
-        }
-    }, 60000); // Roda a checagem a cada minuto
+    try {
+        if(notificationTimer) clearInterval(notificationTimer);
+        if(!('Notification' in window) || Notification.permission !== 'granted' || isDayOff(now)) return;
+        notificationTimer = setInterval(() => {
+            let agoraString = new Date().toTimeString().slice(0,5), config = loadNotifConfig(), idx = config.horarios.indexOf(agoraString);
+            if(idx !== -1) {
+                let acoes = ['Bater Entrada', 'Bater Intervalo', 'Retornar do Intervalo', 'Bater Saída'];
+                new Notification(" Lembrete de Ponto", { body: `Ação necessária: ${acoes[idx]} (${agoraString})` });
+            }
+        }, 60000);
+    } catch(e){}
 }
 
-// --- PULL TO REFRESH SIMULADO POR EVENTOS DE TOQUE ---
+// --- CONTROLE DE TOQUE EM BACKUP ---
 let startY = 0;
 window.addEventListener('touchstart', e => { if(window.scrollY === 0) startY = e.touches[0].pageY; }, {passive: true});
 window.addEventListener('touchmove', e => {
-    let currentY = e.touches[0].pageY;
-    if(startY > 0 && currentY - startY > 70 && window.scrollY === 0) {
-        document.getElementById('ptr-indicator').style.height = '40px';
-    }
+    let currentY = e.touches[0].pageY, ind=document.getElementById('ptr-indicator');
+    if(ind && startY > 0 && currentY - startY > 70 && window.scrollY === 0) ind.style.height = '40px';
 }, {passive: true});
 window.addEventListener('touchend', () => {
-    if(document.getElementById('ptr-indicator').style.height === '40px') {
-        triggerHaptic(); now = new Date(); runApp();
-        setTimeout(() => { document.getElementById('ptr-indicator').style.height = '0'; }, 600);
-    }
+    let ind=document.getElementById('ptr-indicator');
+    if(ind && ind.style.height === '40px') { triggerHaptic(); now = new Date(); runApp(); setTimeout(() => { ind.style.height = '0'; }, 600); }
     startY = 0;
 });
 
-window.onload = function() {
-    recuperarBackupAutomaticoIDB();
-    verificarSenhaAcesso();
-    renderNotificacoes();
-};
+// Inicializador blindado principal
+window.addEventListener('DOMContentLoaded', () => {
+    try { recuperarBackupAutomaticoIDB(); } catch(e){}
+    try { verificarSenhaAcesso(); } catch(e){}
+    try { renderNotificacoes(); } catch(e){}
+});
 </script>
 </body>
 </html>
