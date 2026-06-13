@@ -8,8 +8,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Escala Eliezer - Ultra Premium</title>
 
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230f1117'/><circle cx='50' cy='55' r='26' fill='none' stroke='%23e85555' stroke-width='4'/><path d='M50 38 v17 h12' fill='none' stroke='%23e85555' stroke-width='4' stroke-linecap='round'/><path d='M40 22 h20 M50 22 v4' fill='none' stroke='%237b82a0' stroke-width='4' stroke-linecap='round'/></svg>">
-
 <style>
   :root {
     --bg-main: #0f1117;
@@ -23,7 +21,7 @@
     --primary-rgba: rgba(232, 85, 85, 0.15);
     --secondary: #38d9a9;
     --secondary-rgba: rgba(56, 217, 169, 0.15);
-    --font-mono: ui-monospace, SFMono-Regular, SF Pro Mono, Menlo, Monaco, Consolas, monospace;
+    --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
   }
 
   [data-theme="light"] {
@@ -41,7 +39,7 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; transition: background-color 0.2s, border-color 0.2s; }
-  body { background: var(--bg-main); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding-bottom: 120px; overflow-x: hidden; }
+  body { background: var(--bg-main); color: var(--text-main); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding-bottom: 120px; overflow-x: hidden; }
   
   header { background: var(--bg-header); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 90; border-bottom: 1px solid var(--border); }
   header h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
@@ -100,12 +98,14 @@
   .btn-block { width: 100%; display: block; padding: 12px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); border-radius: 10px; cursor: pointer; margin-bottom: 8px; font-weight: bold; text-align: center; text-decoration: none; font-size: 13px; }
   .btn-danger { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold; font-size: 13px; }
   
-  .bars-container { display: flex; align-items: flex-end; gap: 8px; height: 120px; padding-top: 15px; position: relative; }
-  .bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 2; }
-  .bar { width: 100%; background: var(--primary); border-radius: 4px 4px 0 0; transition: height 0.3s; position: relative; }
-  .bar.past-bar { background: var(--text-muted); opacity: 0.35; width: 60%; position: absolute; bottom: 0; z-index: -1; }
-  .bar-value { font-size: 9px; font-weight: bold; font-family: var(--font-mono); }
-  .bar-label { font-size: 9px; color: var(--text-muted); }
+  /* Gráfico Corrigido para não sobrepor textos */
+  .bars-container { display: flex; align-items: flex-end; gap: 8px; height: 120px; padding-top: 25px; position: relative; }
+  .bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; z-index: 5; }
+  .bar-container-relative { width: 100%; height: 80px; position: relative; display: flex; align-items: flex-end; }
+  .bar { width: 100%; background: var(--primary); border-radius: 4px 4px 0 0; transition: height 0.3s; position: relative; z-index: 10; }
+  .bar.past-bar { background: var(--text-muted); opacity: 0.15; width: 100%; position: absolute; bottom: 0; left: 0; z-index: 1; }
+  .bar-value { font-size: 9px; font-weight: bold; font-family: var(--font-mono); margin-top: 4px; z-index: 12; color: var(--text-main); }
+  .bar-label { font-size: 9px; color: var(--text-muted); margin-top: 2px; }
   
   .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
   .mcell { background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px; padding: 10px 4px; text-align: center; cursor: pointer; }
@@ -227,6 +227,20 @@
       </div>
     </div>
 
+    <div class="week-grid" id="week-grid"></div>
+    
+    <div class="ponto-card">
+      <div class="card-header-flex">
+        <h2> Ponto de Hoje</h2>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-sm" style="background:var(--secondary-rgba);color:var(--secondary);border-color:rgba(56,217,169,0.2);" onclick="preencherDiaPadraoAutomatico()"> Auto</button>
+          <button class="btn-sm" onclick="abrirModalDia(todayKey)"> Detalhes</button>
+        </div>
+      </div>
+      <div id="ponto-body"></div>
+      <div class="previsao-saida" id="previsao-saida-box"></div>
+    </div>
+
     <div class="card-padrao">
       <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted); font-weight:bold; text-transform:uppercase;">
         <span> Meta do Mês Corrente</span>
@@ -248,20 +262,6 @@
         <button class="btn-sm" style="margin-left:14px;" onclick="ajustarBancoHoras()">Ajustar</button>
       </div>
     </div>
-
-    <div class="week-grid" id="week-grid"></div>
-    
-    <div class="ponto-card">
-      <div class="card-header-flex">
-        <h2> Ponto de Hoje</h2>
-        <div style="display:flex;gap:6px;">
-          <button class="btn-sm" style="background:var(--secondary-rgba);color:var(--secondary);border-color:rgba(56,217,169,0.2);" onclick="preencherDiaPadraoAutomatico()"> Auto</button>
-          <button class="btn-sm" onclick="abrirModalDia(todayKey)"> Detalhes</button>
-        </div>
-      </div>
-      <div id="ponto-body"></div>
-      <div class="previsao-saida" id="previsao-saida-box"></div>
-    </div>
     
     <div class="card-padrao" id="resumo-card" style="display:none;">
       <h2 style="font-size:12px;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;">Resumo do Dia</h2>
@@ -270,7 +270,7 @@
     </div>
     
     <div class="card-padrao"><h2> Comparativo Semanal (Atual vs Anterior)</h2><div id="grafico-container"></div></div>
-    <div class="card-padrao"><div class="card-header-flex" style="margin-bottom:0;"><h2> Lembretes Ativos (Notification API)</h2><span class="today-badge" style="background:var(--secondary);" id="notif-status-badge">ATIVO</span></div><div id="notif-container" style="margin-top:14px;"></div></div>
+    <div class="card-padrao"><div class="card-header-flex" style="margin-bottom:0;"><h2> Lembretes Ativos</h2><span class="today-badge" style="background:var(--secondary);" id="notif-status-badge">ATIVO</span></div><div id="notif-container" style="margin-top:14px;"></div></div>
   </div>
   
   <div class="view" id="view-folgas">
@@ -385,7 +385,6 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(data)); backupIndexe
 function dk(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function isDayOff(d){return!!(data[dk(d)]&&data[dk(d)].folga)}
 
-// --- INDEXEDDB TOTALMENTE ISOLADO CONTRA TRAVAMENTOS ---
 const DB_NAME = 'EscalaEliezerDB', DB_VERSION = 1;
 function backupIndexedDB() {
     try {
@@ -436,7 +435,6 @@ function toggleTheme() {
     initTheme();
 }
 
-// --- VERIFICAÇÃO DE INICIALIZAÇÃO FIXADA ---
 let currentPinInput = "";
 function verificarSenhaAcesso(){
     initTheme();
@@ -486,8 +484,8 @@ function updatePinDots() {
 let configPinInput = "";
 function abrirConfigPIN() {
     triggerHaptic();
-    let atual = null; try{ atual = localStorage.getItem('app_pin'); }catch(e){}
-    if(atual) {
+    let abrir = null; try{ abrir = localStorage.getItem('app_pin'); }catch(e){}
+    if(abrir) {
         if(confirm("Deseja remover o bloqueio por PIN?")) {
             try{ localStorage.removeItem('app_pin'); }catch(e){} 
             showToast(" PIN removido"); atualizarBotaoSenhaVisual();
@@ -812,7 +810,13 @@ function renderEscala(){
         let block=document.createElement('div'); block.innerHTML='<div style="font-size:10px;color:var(--text-muted);margin:12px 0 6px;text-transform:uppercase;font-weight:bold;">Semana '+(idx+1)+'</div>';
         sem.forEach(date=>{
             let k=dk(date),rec=data[k]||{},isOff=!!rec.folga,isFuture=date>now,isToday=k===todayKey,cls='escala-day',numColor='muted',status='',horas='—',horarios='';
-            if(isOff){cls+=' is-folga';numColor='green';status=' Folga'}else if(rec.entrada&&rec.saida){cls+=' is-trabalhou';numColor='blue';let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(parseInt(b[0])-parseInt(a[0]))*60+(parseInt(b[1])-parseInt(a[1])),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(parseInt(av[0])-parseInt(as[0]))*60+(parseInt(av[1])-parseInt(as[1]))}horas=Math.floor((mt-mi)/60)+'h';status=' Escalado';horarios=rec.entrada+' - '+rec.saida}else if(!isFuture){cls+=' is-pendente';status=' Pendente';horarios=DEFAULT.entrada+' - '+DEFAULT.saida}else{status=' Escala';horarios=DEFAULT.entrada+' - '+DEFAULT.saida;horas='7h20'}
+            
+            // CORREÇÃO DOS STATUS PARA TRABALHO / TRABALHOU
+            if(isOff){cls+=' is-folga';numColor='green';status=' Folga'}
+            else if(rec.entrada&&rec.saida){cls+=' is-trabalhou';numColor='blue';let a=rec.entrada.split(':'),b=rec.saida.split(':'),mt=(parseInt(b[0])-parseInt(a[0]))*60+(parseInt(b[1])-parseInt(a[1])),mi=0;if(rec['almoco-saida']&&rec['almoco-volta']){let as=rec['almoco-saida'].split(':'),av=rec['almoco-volta'].split(':');mi=(parseInt(av[0])-parseInt(as[0]))*60+(parseInt(av[1])-parseInt(as[1]))}horas=Math.floor((mt-mi)/60)+'h';status=' Trabalhou';horarios=rec.entrada+' - '+rec.saida}
+            else if(!isFuture){cls+=' is-pendente';status=' Pendente';horarios=DEFAULT.entrada+' - '+DEFAULT.saida}
+            else{status=' Trabalho';horarios=DEFAULT.entrada+' - '+DEFAULT.saida;horas='7h20'}
+            
             if(isToday)cls+=' is-today';
             let dayEl=document.createElement('div'); dayEl.className=cls;
             dayEl.innerHTML='<div class="eday-date"><div class="eday-num '+numColor+'">'+date.getDate()+'</div><div class="eday-dow">'+DAYS[date.getDay()]+'</div></div><div class="eday-info"><div class="eday-status">'+status+'</div><div class="eday-horarios">'+horarios+'</div></div><div class="eday-horas">'+horas+'</div>';
@@ -836,10 +840,10 @@ function renderGrafico(){
             }
         }); return totalMin;
     });
-    let maxHoras=Math.max(...horasPorSemana, 2200), alturaMax=100;
+    let maxHoras=Math.max(...horasPorSemana, 2200), alturaMax=80;
     container.innerHTML='<div class="bars-container">'+horasPorSemana.map((minutos,i)=>{
         let alt = (minutos/maxHoras)*alturaMax;
-        return `<div class="bar-wrapper"><div style="width:100%; height:${alturaMax}px; position:relative; display:flex; align-items:flex-end;"><div class="bar past-bar" style="height:${Math.max(15,alt*0.8)}px"></div><div class="bar" style="height:${alt}px"></div></div><div class="bar-value">${Math.floor(minutos/60)}h</div><div class="bar-label">S${i+1}</div></div>`;
+        return `<div class="bar-wrapper"><div class="bar-container-relative"><div class="bar past-bar" style="height:${Math.max(8,alt*0.8)}px"></div><div class="bar" style="height:${alt}px"></div></div><div class="bar-value">${Math.floor(minutos/60)}h</div><div class="bar-label">S${i+1}</div></div>`;
     }).join('')+'</div>';
 }
 
@@ -865,7 +869,6 @@ function limparTodosDados(){
 }
 function showToast(m){let t=document.getElementById('toast');if(!t)return;t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
 
-// --- NOTIFICAÇÕES ENGINE TOTALMENTE ISOLADA ---
 let NOTIF_KEY='notificacoes_config', notificationTimer=null;
 function loadNotifConfig(){try{let s=localStorage.getItem(NOTIF_KEY);if(s)return JSON.parse(s)}catch(e){}return{enabled:true,horarios:['13:50','15:50','16:50','22:10']}}
 async function solicitarPermissaoNotificacao(){
@@ -905,7 +908,6 @@ function startNotificationEngine() {
     } catch(e){}
 }
 
-// --- CONTROLE DE TOQUE EM BACKUP ---
 let startY = 0;
 window.addEventListener('touchstart', e => { if(window.scrollY === 0) startY = e.touches[0].pageY; }, {passive: true});
 window.addEventListener('touchmove', e => {
@@ -918,7 +920,6 @@ window.addEventListener('touchend', () => {
     startY = 0;
 });
 
-// Inicializador blindado principal
 window.addEventListener('DOMContentLoaded', () => {
     try { recuperarBackupAutomaticoIDB(); } catch(e){}
     try { verificarSenhaAcesso(); } catch(e){}
