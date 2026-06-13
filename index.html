@@ -8,9 +8,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Escala Eliezer</title>
 
-<!-- ÍCONES E MANIFESTO -->
+<!-- ÍCONES E MANIFESTO PARA INSTALAÇÃO DIRETA -->
 <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2991/2991108.png">
-<link class="marcar-ios" rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2991/2991108.png">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2991/2991108.png">
 <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkVzY2FsYSBFbGllemVyIiwKICAic2hvcnRfbmFtZSI6ICJFc2NhbGEiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzBmMTExNyIsCiAgInRoZW1lX2NvbG9yIjogIiMxMDEyMmIiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJodHRwczovL2Nkbi1pY29ucy1wbmcuZmxhdGljb24uY29tLzUxMi8yOTkxLzI5OTExMDgucG5nIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9wbmciCiAgICB9CiAgXQp9">
 
 <style>
@@ -24,16 +24,16 @@
   
   .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;}
   .stat-card{background:#1a1d27;border-radius:14px;padding:14px;text-align:center;border:1px solid #2e3350;}
-  .stat-card .val{font-size:20px;font-weight:900;}
+  .stat-card .val{font-size:19px;font-weight:900;}
   .stat-card .val.blue{color:#4dabf7;}
   .stat-card .val.green{color:#38d9a9;}
   .stat-card .val.white{color:#fff;}
   .stat-card .lbl{font-size:11px;color:#7b82a0;margin-top:4px;text-transform:uppercase;letter-spacing:0.5px;}
   
-  /* MELHORIA: Controles do Calendário */
   .cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:0 4px;}
-  .cal-nav span{font-size:14px;font-weight:bold;color:#7b82a0;}
-  .btn-nav-cal{background:#22263a;border:1px solid #2e3350;color:#fff;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:bold;}
+  .cal-nav span{font-size:14px;font-weight:bold;color:#7b82a0;text-transform:uppercase;letter-spacing:0.5px;}
+  .btn-nav-cal{background:#22263a;border:1px solid #2e3350;color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:13px;}
+  .btn-nav-cal:active{background:#2e3350;}
   
   .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:20px;}
   .day-cell{background:#1a1d27;border:1px solid #2e3350;border-radius:10px;padding:10px 4px;text-align:center;cursor:pointer;transition:transform 0.1s;}
@@ -52,15 +52,15 @@
   .ponto-row span{font-size:14px;color:#7b82a0;}
   .ponto-row strong{font-size:15px;color:#fff;}
   
-  .btn-reg{background:#e85555;color:#fff;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:bold;}
+  .btn-reg{background:#e85555;color:#fff;border:none;padding:12px 20px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:bold;}
   .btn-sm{background:#22263a;border:1px solid #2e3350;color:#7b82a0;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;}
+  .btn-sm:hover{color:#fff;}
   
   .card-padrao{background:#1a1d27;border-radius:16px;padding:20px;margin-bottom:20px;border:1px solid #2e3350;}
   .card-padrao h2{font-size:16px;margin-bottom:14px;color:#fff;}
   
-  /* MELHORIA: Estilos do Histórico Agrupado */
-  .month-group{margin-bottom:20px;}
-  .month-header{background:#22263a;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:bold;color:#4dabf7;display:flex;justify-content:space-between;margin-bottom:6px;}
+  .month-group{margin-bottom:24px;}
+  .month-header{background:#22263a;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:bold;color:#4dabf7;display:flex;justify-content:space-between;margin-bottom:8px;border:1px solid #2e3350;}
   .hist-item{display:flex;justify-content:space-between;align-items:center;padding:12px 8px;border-bottom:1px solid #2e3350;}
   .hist-item:last-child{border-bottom:none;}
   
@@ -80,13 +80,15 @@
   .mrow{margin-bottom:14px;}
   .mrow label{font-size:12px;color:#7b82a0;display:block;margin-bottom:6px;}
   .mrow input, .mrow select{width:100%;background:#22263a;border:1px solid #2e3350;color:#fff;padding:12px;border-radius:10px;font-size:16px;outline:none;-webkit-appearance:none;}
+  .mrow input:focus, .mrow select:focus {border-color:#e85555;}
+  .btn-save{width:100%;padding:14px;background:#e85555;border:none;color:#fff;border-radius:12px;margin-top:10px;font-weight:bold;font-size:15px;}
   
   .view{display:none;}.view.active{display:block;}
   
-  /* TELA DE LOCK */
+  /* LOCK SCREEN */
   #lock-screen{position:fixed;inset:0;background:#0f1117;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-  .pin-dots{display:flex;gap:16px;margin:20px 0;}
-  .dot{width:16px;height:16px;border-radius:50%;border:2px solid #2e3350;}
+  .pin-dots{display:flex;gap:16px;margin:24px 0;}
+  .dot{width:16px;height:16px;border-radius:50%;border:2px solid #2e3350;transition: background 0.1s;}
   .dot.filled{background:#e85555;border-color:#e85555;}
   .keyboard{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%;max-width:280px;margin-bottom:20px;}
   .key{background:#1a1d27;border:1px solid #2e3350;color:#fff;font-size:24px;font-weight:bold;padding:18px;border-radius:50%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;cursor:pointer;}
@@ -97,7 +99,7 @@
 </head>
 <body>
 
-<!-- TELA DE LOGIN PIN -->
+<!-- TELA DE BLOQUEIO -->
 <div id="lock-screen">
   <h2 style="font-size:20px;color:#fff;">Insira o seu PIN</h2>
   <div class="pin-dots" id="pin-dots">
@@ -110,11 +112,11 @@
     <div class="key" style="visibility:hidden;"></div><div class="key" onclick="pressPin(0)">0</div><div class="key" onclick="clearPin()" style="font-size:14px;color:#7b82a0;">Limpar</div>
   </div>
   <label class="remember-box">
-    <input type="checkbox" id="chk-remember"> Lembrar PIN por 7 dias
+    <input type="checkbox" id="chk-remember"> Lembrar-me por 7 dias
   </label>
 </div>
 
-<!-- CONTEÚDO DO APP -->
+<!-- CONTAINER PRINCIPAL DA APLICACAO -->
 <div id="app-content" style="display:none;">
   <header>
     <h1 id="header-title">Escala Eliezer</h1>
@@ -122,40 +124,41 @@
   </header>
 
   <main>
-    <!-- VIEW: HOJE -->
+    <!-- ABA: HOJE -->
     <div class="view active" id="view-hoje">
       <div class="stats">
         <div class="stat-card"><div class="val blue" id="stat-dias">0</div><div class="lbl">Dias Trab.</div></div>
         <div class="stat-card"><div class="val green" id="stat-folgas">0</div><div class="lbl">Folgas</div></div>
-        <div class="stat-card"><div class="val white" id="stat-horas">0h</div><div class="lbl">Banco Horas</div></div>
+        <div class="stat-card"><div class="val white" id="stat-horas">00:00h</div><div class="lbl">Banco Horas</div></div>
       </div>
 
-      <!-- MELHORIA: Navegador de semanas -->
+      <!-- Barra de navegação das semanas -->
       <div class="cal-nav">
         <button class="btn-nav-cal" onclick="changeWeek(-7)"> Ant</button>
         <span id="cal-current-month">Mês</span>
-        <button class="btn-nav-cal" onclick="changeWeek(7)">Prox </button>
+        <button class="btn-nav-cal" onclick="changeWeek(7)">Próx </button>
       </div>
       <div class="week-grid" id="week-grid"></div>
 
-      <div class="ponto-card" id="ponto-body"></div>
+      <div class="ponto-card" id="ponto-body">
+         <!-- Injetado dinamicamente -->
+      </div>
     </div>
 
-    <!-- VIEW: HISTÓRICO -->
+    <!-- ABA: HISTÓRICO -->
     <div class="view" id="view-historico">
       <div class="card-padrao">
-        <h2> Resumo por Períodos</h2>
+        <h2> Resumo Mensal</h2>
         <div id="historico-lista"></div>
       </div>
     </div>
 
-    <!-- VIEW: CONFIGURAÇÕES -->
+    <!-- ABA: AJUSTES -->
     <div class="view" id="view-config">
-      <!-- MELHORIA: Carga Horária Padrão Regulável -->
       <div class="card-padrao">
-        <h2> Sua Jornada Diária</h2>
+        <h2> Carga Horária Padrão</h2>
         <div class="mrow" style="margin-top:10px;">
-          <label>Horas de trabalho padrão por dia:</label>
+          <label>Selecione sua jornada diária contratual:</label>
           <select id="cfg-jornada" onchange="salvarConfigJornada()">
             <option value="360">06:00 h</option>
             <option value="420">07:00 h</option>
@@ -170,8 +173,8 @@
         <button class="btn-block" onclick="alterarPin()">Alterar PIN de Acesso</button>
       </div>
       <div class="card-padrao">
-        <h2> Restaurar Sistema</h2>
-        <button class="btn-danger" onclick="limparTodosDados()">Limpar Todos os Dados</button>
+        <h2> Sistema</h2>
+        <button class="btn-danger" onclick="limparTodosDados()">Apagar Todos os Dados</button>
       </div>
     </div>
   </main>
@@ -183,10 +186,10 @@
   </nav>
 </div>
 
-<!-- MODAL DE PONTO -->
+<!-- MODAL PARA REGISTRO DE HORAS -->
 <div class="modal-overlay" id="modal-ponto" onclick="fecharModal()">
   <div class="modal" onclick="event.stopPropagation()">
-    <h3 id="modal-titulo">Registrar Horários</h3>
+    <h3 id="modal-titulo">Registrar Jornada</h3>
     <div class="mrow"><label>Entrada</label><input type="time" id="inp-ent" value="08:00"></div>
     <div class="mrow"><label>Almoço (Saída)</label><input type="time" id="inp-asai" value="12:00"></div>
     <div class="mrow"><label>Almoço (Retorno)</label><input type="time" id="inp-aent" value="13:00"></div>
@@ -196,20 +199,25 @@
 </div>
 
 <script>
-const KEY = 'escala_app_v3_prod';
+const KEY = 'escala_app_v3_completo';
 let data = JSON.parse(localStorage.getItem(KEY)) || {};
 let selectedDateKey = new Date().toISOString().split('T')[0];
-let currentPivotDate = new Date(); // Controla qual semana está sendo exibida
+let currentPivotDate = new Date();
 let currentPinInput = "";
 
-// INICIALIZADOR DE SEGURANÇA & MELHORIA: Auto-Login por 7 dias
+// SISTEMA DE SEGURANÇA E AUTO-LOGIN POR 7 DIAS
 function initSecurity() {
-    let pinDefinido = localStorage.getItem('app_pin') || '1234';
-    localStorage.setItem('app_pin', pinDefinido);
-
+    let pinDefinido = localStorage.getItem('app_pin');
+    if (!pinDefinido) {
+        localStorage.setItem('app_pin', '1234');
+    }
+    
     let rememberUntil = localStorage.getItem('app_remember_token');
     if (rememberUntil && new Date().getTime() < parseInt(rememberUntil)) {
         bypassLock();
+    } else {
+        currentPinInput = "";
+        updatePinDots();
     }
 }
 
@@ -222,8 +230,8 @@ function pressPin(num) {
         let pinCorreto = localStorage.getItem('app_pin') || '1234';
         if (currentPinInput === pinCorreto) {
             if(document.getElementById('chk-remember').checked) {
-                let exp = new Date().getTime() + (7 * 24 * 60 * 60 * 1000);
-                localStorage.setItem('app_remember_token', exp.toString());
+                let dataExpiracao = new Date().getTime() + (7 * 24 * 60 * 60 * 1000);
+                localStorage.setItem('app_remember_token', dataExpiracao.toString());
             }
             bypassLock();
         } else {
@@ -237,14 +245,17 @@ function bypassLock() {
     document.getElementById('lock-screen').style.display = 'none';
     document.getElementById('app-content').style.display = 'block';
     
-    // Carrega jornada padrão salva se houver
-    let j = localStorage.getItem('app_jornada_padrao') || '480';
-    document.getElementById('cfg-jornada').value = j;
+    let jornadaSalva = localStorage.getItem('app_jornada_padrao') || '480';
+    document.getElementById('cfg-jornada').value = jornadaSalva;
     
     render();
 }
 
-function clearPin() { currentPinInput = ""; updatePinDots(); }
+function clearPin() { 
+    currentPinInput = ""; 
+    updatePinDots(); 
+}
+
 function updatePinDots() {
     let dots = document.querySelectorAll('#pin-dots .dot');
     dots.forEach((dot, idx) => dot.classList.toggle('filled', idx < currentPinInput.length));
@@ -253,12 +264,17 @@ function updatePinDots() {
 function alterarPin() {
     let atual = prompt("Digite o PIN atual:");
     if(atual === localStorage.getItem('app_pin')) {
-        let novo = prompt("Digite o novo PIN (4 dígitos):");
+        let novo = prompt("Digite o novo PIN de 4 dígitos:");
         if(novo && novo.length === 4 && !isNaN(novo)) {
             localStorage.setItem('app_pin', novo);
-            alert("PIN modificado com sucesso!");
-        } else alert("Formato inválido.");
-    } else alert("PIN incorreto.");
+            localStorage.removeItem('app_remember_token'); // Força renovação
+            alert("PIN alterado com sucesso!");
+        } else {
+            alert("Erro: O PIN deve conter exatamente 4 números.");
+        }
+    } else {
+        alert("PIN atual incorreto.");
+    }
 }
 
 function salvarConfigJornada() {
@@ -267,28 +283,38 @@ function salvarConfigJornada() {
     render();
 }
 
-// CÁLCULOS HORÁRIOS
-function hToM(h) { if(!h) return 0; let [hh, mm] = h.split(':').map(Number); return (hh * 60) + mm; }
-function mToH(m) {
-    let sign = m < 0 ? '-' : ''; m = Math.abs(m);
-    return `${sign}${String(Math.floor(m / 60)).padStart(2,'0')}:${String(m % 60).padStart(2,'0')}h`;
-}
-function calcMinutosTrabalhados(obj) {
-    if (obj.tipo === 'folga') return 0;
-    let t1 = hToM(obj.asai) - hToM(obj.ent), t2 = hToM(obj.sai) - hToM(obj.aent);
-    return (t1 > 0 ? t1 : 0) + (t2 > 0 ? t2 : 0);
+// FORMATADORES E CALCULADORES MATEMÁTICOS DE HORAS
+function hToM(h) { 
+    if(!h) return 0; 
+    let [hh, mm] = h.split(':').map(Number); 
+    return (hh * 60) + mm; 
 }
 
-// ALTERNADOR DE ABAS
+function mToH(m) {
+    let sign = m < 0 ? '-' : ''; 
+    m = Math.abs(m);
+    let horas = Math.floor(m / 60);
+    let minutos = m % 60;
+    return `${sign}${String(horas).padStart(2,'0')}:${String(minutos).padStart(2,'0')}h`;
+}
+
+function calcMinutosTrabalhados(obj) {
+    if (!obj || obj.tipo === 'folga') return 0;
+    let turno1 = hToM(obj.asai) - hToM(obj.ent);
+    let turno2 = hToM(obj.sai) - hToM(obj.aent);
+    return (turno1 > 0 ? turno1 : 0) + (turno2 > 0 ? turno2 : 0);
+}
+
+// ESTRUTURA DA NAVEGAÇÃO E RE-CONSTRUÇÃO DAS ABAS
 function switchView(viewName) {
     document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
+    
     document.getElementById('view-' + viewName).classList.add('active');
     document.getElementById('nav-' + viewName).classList.add('active');
     render();
 }
 
-// MELHORIA: Navegar pelas semanas do calendário
 function changeWeek(days) {
     currentPivotDate.setDate(currentPivotDate.getDate() + days);
     render();
@@ -299,15 +325,17 @@ function selecionarDia(dateStr) {
     render();
 }
 
-// RENDERIZADOR CENTRAL DO APP
+// ENGINE DE RENDERIZAÇÃO CENTRAL DO APP
 function render() {
     let contDias = 0, contFolgas = 0, totalMinutosBH = 0;
     let jPadrao = parseInt(localStorage.getItem('app_jornada_padrao') || '480');
     
+    // Processamento matemático inicial do banco de dados
     Object.keys(data).forEach(k => {
         if(data[k].tipo === 'trabalho') {
             contDias++;
-            totalMinutosBH += (calcMinutosTrabalhados(data[k]) - jPadrao);
+            let minutosLiquidos = calcMinutosTrabalhados(data[k]);
+            totalMinutosBH += (minutosLiquidos - jPadrao);
         } else if(data[k].tipo === 'folga') {
             contFolgas++;
         }
@@ -317,14 +345,13 @@ function render() {
     document.getElementById('stat-folgas').textContent = contFolgas;
     document.getElementById('stat-horas').textContent = mToH(totalMinutosBH);
 
-    // Render Grade de Dias com Pivô móvel
+    // Renderizador da Grade de Dias Móvel
     let grid = document.getElementById('week-grid');
     grid.innerHTML = '';
     
     let mesesTexto = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
     let diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
     
-    // Alinha início da grade no Domingo da semana selecionada
     let startOfWeek = new Date(currentPivotDate);
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
     
@@ -340,14 +367,16 @@ function render() {
         if(k === new Date().toISOString().split('T')[0]) cell.classList.add('today-cell');
         if(k === selectedDateKey) cell.classList.add('selected-cell');
         
-        if(data[k]) cell.classList.add(data[k].tipo === 'folga' ? 'has-folga' : 'has-data');
+        if(data[k]) {
+            cell.classList.add(data[k].tipo === 'folga' ? 'has-folga' : 'has-data');
+        }
         
         cell.onclick = () => selecionarDia(k);
         cell.innerHTML = `<div class="d-w">${diasSemana[i]}</div><div class="d-n">${d.getDate()}</div>`;
         grid.appendChild(cell);
     }
 
-    // Painel de controle inferior do Dia Selecionado
+    // Renderizador do Painel Informativo Inferior (Dia Selecionado)
     let pBody = document.getElementById('ponto-body');
     let regDia = data[selectedDateKey];
     let [ano, mes, diaNum] = selectedDateKey.split('-');
@@ -356,29 +385,35 @@ function render() {
     document.getElementById('today-badge').className = "today-badge " + (regDia?.tipo === 'folga' ? 'folga-badge' : '');
 
     if (!regDia) {
-        pBody.innerHTML = `<h2>Dia ${diaNum}/${mes}</h2><p style="color:#7b82a0; font-size:14px; margin-bottom:16px;">Sem dados.</p>
+        pBody.innerHTML = `
+            <h2>Dia ${diaNum}/${mes}</h2>
+            <p style="color:#7b82a0; font-size:14px; margin-bottom:16px;">Nenhum registro para esta data.</p>
             <div style="display:flex; gap:10px;">
                 <button class="btn-reg" style="flex:1; background:#4dabf7;" onclick="abrirModalPonto()">Trabalho</button>
                 <button class="btn-reg" style="flex:1; background:#38d9a9; color:#000;" onclick="marcarFolga()">Folga</button>
             </div>`;
     } else if (regDia.tipo === 'folga') {
-        pBody.innerHTML = `<h2>Dia ${diaNum}/${mes} <span style="color:#38d9a9;">(Folga)</span></h2>
+        pBody.innerHTML = `
+            <h2>Dia ${diaNum}/${mes} <span style="color:#38d9a9;">(Folga)</span></h2>
+            <p style="color:#7b82a0; font-size:14px; margin-bottom:16px;">Marcado como dia de descanso.</p>
             <button class="btn-sm" onclick="deletarRegistro('${selectedDateKey}')">Remover Registro</button>`;
     } else {
         let mTrab = calcMinutosTrabalhados(regDia);
-        pBody.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <h2>Dia ${diaNum}/${mes}</h2><button class="btn-sm" onclick="deletarRegistro('${selectedDateKey}')">Remover</button>
+        pBody.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h2>Dia ${diaNum}/${mes}</h2>
+                <button class="btn-sm" onclick="deletarRegistro('${selectedDateKey}')">Remover</button>
             </div>
             <div class="ponto-row"><span>Entrada</span><strong>${regDia.ent}</strong></div>
-            <div class="ponto-row"><span>Almoço (Ida)</span><strong>${regDia.asai}</strong></div>
+            <div class="ponto-row"><span>Almoço (Saída)</span><strong>${regDia.asai}</strong></div>
             <div class="ponto-row"><span>Almoço (Volta)</span><strong>${regDia.aent}</strong></div>
             <div class="ponto-row"><span>Saída</span><strong>${regDia.sai}</strong></div>
             <div class="ponto-row" style="border-top:1px dashed #2e3350; margin-top:6px; padding-top:12px;">
-                <span>Horas líquidas</span><strong style="color:#4dabf7;">${mToH(mTrab)}</strong>
+                <span>Horas Trabalhadas</span><strong style="color:#4dabf7;">${mToH(mTrab)}</strong>
             </div>`;
     }
 
-    // MELHORIA: Histórico Agrupado de Forma Elegante por Mês
+    // Histórico Agrupado de Forma Elegante por Mês (Dinâmico)
     renderHistoricoAgrupado(jPadrao);
 }
 
@@ -406,17 +441,18 @@ function renderHistoricoAgrupado(jPadrao) {
         let bloco = document.createElement('div');
         bloco.className = 'month-group';
         
-        // Calcular totais do mês para o cabeçalho
         let minMes = 0, folgasMes = 0;
         grupos[nomeGrupo].forEach(item => {
             if(item.obj.tipo === 'trabalho') {
                 minMes += (calcMinutosTrabalhados(item.obj) - jPadrao);
-            } else folgasMes++;
+            } else {
+                folgasMes++;
+            }
         });
 
         let headerDiv = document.createElement('div');
         headerDiv.className = 'month-header';
-        headerDiv.innerHTML = `<span>${nomeGrupo}</span><span>Folgas: ${folgasMes} | Saldo: ${mToH(minMes)}</span>`;
+        headerDiv.innerHTML = `<span>${nomeGrupo}</span><span>Folgas: ${folgasMes} | Banco: ${mToH(minMes)}</span>`;
         bloco.appendChild(headerDiv);
 
         grupos[nomeGrupo].forEach(item => {
@@ -425,9 +461,10 @@ function renderHistoricoAgrupado(jPadrao) {
             itemDiv.className = 'hist-item';
             
             if(item.obj.tipo === 'folga') {
-                itemDiv.innerHTML = `<span>Dia ${dia}</span><strong style="color:#38d9a9;">Folga</strong>`;
+                itemDiv.innerHTML = `<span> Dia ${dia}/${mes}</span><strong style="color:#38d9a9;">Folga</strong>`;
             } else {
-                itemDiv.innerHTML = `<span>Dia ${dia} (${item.obj.ent} - ${item.obj.sai})</span><strong style="color:#4dabf7;">${mToH(calcMinutosTrabalhados(item.obj))}</strong>`;
+                let liq = calcMinutosTrabalhados(item.obj);
+                itemDiv.innerHTML = `<span> Dia ${dia}/${mes} (${item.obj.ent} às ${item.obj.sai})</span><strong style="color:#4dabf7;">${mToH(liq)}</strong>`;
             }
             bloco.appendChild(itemDiv);
         });
@@ -436,7 +473,7 @@ function renderHistoricoAgrupado(jPadrao) {
     });
 }
 
-// CONTROLADORES DE EVENTO
+// CONTROLADORES DE MODAL E INFRAESTRUTURA DE DADOS
 function abrirModalPonto() {
     let reg = data[selectedDateKey];
     if(reg && reg.tipo === 'trabalho') {
@@ -444,11 +481,18 @@ function abrirModalPonto() {
         document.getElementById('inp-asai').value = reg.asai;
         document.getElementById('inp-aent').value = reg.aent;
         document.getElementById('inp-sai').value = reg.sai;
+    } else {
+        document.getElementById('inp-ent').value = "08:00";
+        document.getElementById('inp-asai').value = "12:00";
+        document.getElementById('inp-aent').value = "13:00";
+        document.getElementById('inp-sai').value = "17:00";
     }
     document.getElementById('modal-ponto').classList.add('open');
 }
 
-function fecharModal() { document.getElementById('modal-ponto').classList.remove('open'); }
+function fecharModal() { 
+    document.getElementById('modal-ponto').classList.remove('open'); 
+}
 
 function salvarPonto() {
     data[selectedDateKey] = {
@@ -470,7 +514,7 @@ function marcarFolga() {
 }
 
 function deletarRegistro(key) {
-    if(confirm("Remover o registro selecionado?")) {
+    if(confirm("Deseja mesmo remover o registro desse dia?")) {
         delete data[key];
         localStorage.setItem(KEY, JSON.stringify(data));
         render();
@@ -478,14 +522,17 @@ function deletarRegistro(key) {
 }
 
 function limparTodosDados() {
-    if (confirm("Excluir de vez toda a base de dados do aplicativo?")) {
+    if (confirm("ATENÇÃO PERIGO:\nIsso limpará toda a sua memória e histórico do aplicativo de maneira permanente. Continuar?")) {
         localStorage.clear();
         data = {};
         location.reload();
     }
 }
 
-window.onload = () => { initSecurity(); };
+// DISPARO AUTOMÁTICO INICIAL
+window.onload = () => { 
+    initSecurity(); 
+};
 </script>
 </body>
 </html>
